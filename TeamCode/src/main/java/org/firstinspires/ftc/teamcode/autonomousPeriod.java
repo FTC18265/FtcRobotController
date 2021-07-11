@@ -217,6 +217,7 @@ public class autonomousPeriod extends LinearOpMode {
         sleep(1000);
         arm.setPosition(0);
         leftByTime(70);
+
         sleep(1000);
         //gyroHorizontal(1, -38);
         gyroDrive(0.7, -37, 0);
