@@ -22,6 +22,8 @@ public class useProgrammingBoard extends OpMode {
     public void loop() {
         result = programmingBoard2.isTouchSensorPressed();
 
+        //telemetry.addLine(programmingBoard2.isTouchSensorPressed());
+        
         if(result = false){
             telemetry.addLine("not pressed");
         }

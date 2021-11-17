@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import java.lang.reflect.Array;
-
 @TeleOp
 
 public class practiceArray extends OpMode {
@@ -26,13 +24,13 @@ public class practiceArray extends OpMode {
 
     @Override
     public void loop() {
-        time += 1;
-        if(getRuntime() > time){
-            if(index < 4){
+        if (getRuntime() > time +1){
+            if (index < 4){
+                time += 1;
                 telemetry.addLine(lyrics[index]);
                 index += 1;
             }
-            if(index == 4){
+            else{
                 index = 0;
             }
         }

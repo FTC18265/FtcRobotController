@@ -17,6 +17,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import java.util.ArrayList;
+
 public class programmingBoard2 {
     private DigitalChannel touchSensor;
     private DcMotor motor;
@@ -27,6 +29,7 @@ public class programmingBoard2 {
     private DistanceSensor distanceSensor;
     private BNO055IMU imu;
 
+    //initialize
     public void init(HardwareMap hwMap) {
 
         touchSensor = hwMap.get(DigitalChannel.class, "touch_sensor");
@@ -53,12 +56,24 @@ public class programmingBoard2 {
         imu.initialize(params);
     }
 
+    //methodss
     public boolean isTouchSensorPressed() {
         if(!touchSensor.getState()){
             return true;
         }
         return false;
     }
+
+    /*
+    public String isTouchSensorPressed() {
+        if(touchSensor.getState() == true){
+            return "pressed";
+        }
+        else{
+            return "not pressed";
+        }
+    }
+    */
 
     public void setMotorSpeed(double speed){
         motor.setPower(speed);
@@ -109,5 +124,13 @@ public class programmingBoard2 {
     public double getHeading(AngleUnit angleUnit) {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, angleUnit);
         return angles.firstAngle;
+    }
+
+    public ArrayList<testItem> getTests() {
+        ArrayList<testItem> tests = new ArrayList<>();
+        tests.add(new testMotor("PB Motor", 0.5, motor));
+
+        tests.add(new testAnalogInput("PB Pot", pot, 0, 270));
+        return tests;
     }
 }

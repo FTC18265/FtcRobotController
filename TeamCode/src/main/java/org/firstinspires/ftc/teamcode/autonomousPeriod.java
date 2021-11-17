@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.bosch.NaiveAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -27,7 +28,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
 import java.util.List;
 import java.util.Locale;
 
-@Autonomous(name = "autonomousPeriod")
+@Disabled
 public class autonomousPeriod extends LinearOpMode {
 
     private Servo arm;
