@@ -38,10 +38,10 @@ public class freightFrenzyDriver extends LinearOpMode {
     public static final double NEW_D = 0.0;
     public static final double NEW_F = 12.6;
 
-    public static final double turning_NEW_P = 0.5;
+    public static final double turning_NEW_P = 30;
     public static final double turning_NEW_I = 1.5;
-    public static final double turning_NEW_D = 0.0;
-    public static final double turning_NEW_F = 20;
+    public static final double turning_NEW_D = 0.5;
+    public static final double turning_NEW_F = 0;
 
     @Override
     public void runOpMode() {
@@ -93,7 +93,8 @@ public class freightFrenzyDriver extends LinearOpMode {
         arm.setPositionPIDFCoefficients(5.0);
 
         susan.setVelocityPIDFCoefficients(turning_NEW_P, turning_NEW_I, turning_NEW_D, turning_NEW_F);
-        susan.setPositionPIDFCoefficients(5.0);
+        susan.setPositionPIDFCoefficients(3.0);
+        susan.setTargetPositionTolerance(3);
 
         // re-read coefficients and verify change.
         PIDFCoefficients pidModified = arm.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -122,13 +123,14 @@ public class freightFrenzyDriver extends LinearOpMode {
             //carousel
             if (gamepad1.b){
                 button = "gamepad1.b";
-                carousel.setPower(0.15 );
+                carousel.setPower(0.3);
             }
             if (gamepad1.x) {
                 button = "gamepad1.x";
-                carousel.setPower(-0.15);
+                carousel.setPower(-0.3);
             }
-            else{
+            if (gamepad1.y) {
+                button = "gamepad1.y";
                 carousel.setPower(0);
             }
 
@@ -176,13 +178,13 @@ public class freightFrenzyDriver extends LinearOpMode {
 
             position = arm.getCurrentPosition();
             if (gamepad2.dpad_down && currenttime - lasttime > 0.1) {
-                button = "gamepad1.dpad_down";
+                button = "gamepad2.dpad_down";
                 position += 35;
                 arm.setTargetPosition(position);
                 lasttime = currenttime;
             }
             if (gamepad2.dpad_up && currenttime - lasttime > 0.1) {
-                button = "gamepad1.dpad_up";
+                button = "gamepad2.dpad_up";
                 position -= 35;
                 arm.setTargetPosition(position);
                 lasttime = currenttime;
@@ -196,7 +198,7 @@ public class freightFrenzyDriver extends LinearOpMode {
                 degree--;
                 lasttime = currenttime;
                 if (degree < -1){
-                    degree = 1;
+                    degree = -1;
                 }
                 setTurn(degree);
             }
@@ -212,8 +214,8 @@ public class freightFrenzyDriver extends LinearOpMode {
 
             turningPosition = susan.getCurrentPosition();
             if (gamepad2.left_bumper && currenttime - lasttime > 0.1) {
-                button = "gamepad2.dpad_left";
-                turningPosition -= 25;
+                button = "gamepad2.left_bumper";
+                turningPosition -= 15;
                 if (turningPosition < -90){
                     turningPosition = -90;
                 }
@@ -222,8 +224,8 @@ public class freightFrenzyDriver extends LinearOpMode {
 
             }
             if (gamepad2.right_bumper && currenttime - lasttime > 0.1) {
-                button = "gamepad2.dpad_right";
-                turningPosition += 25;
+                button = "gamepad2.right_bumper";
+                turningPosition += 15;
                 if (turningPosition > 90){
                     turningPosition = 90;
                 }
