@@ -19,13 +19,15 @@ public class freightFrenzyDriver extends LinearOpMode {
     private DcMotor bottomright;
     private DcMotor bottomleft;
     private DcMotorEx arm;
+    private DcMotorEx susan;
     private DcMotor intake;
-    private Servo pusher;
+    private Servo door;
     private DcMotor carousel;
 
     private AnalogInput potentiometer;
 
     private int level = 0;
+    private int degree = 0;
     private double lasttime;
     private double currenttime;
 
@@ -36,6 +38,11 @@ public class freightFrenzyDriver extends LinearOpMode {
     public static final double NEW_D = 0.0;
     public static final double NEW_F = 12.6;
 
+    public static final double turning_NEW_P = 0.5;
+    public static final double turning_NEW_I = 1.5;
+    public static final double turning_NEW_D = 0.0;
+    public static final double turning_NEW_F = 20;
+
     @Override
     public void runOpMode() {
 
@@ -44,38 +51,58 @@ public class freightFrenzyDriver extends LinearOpMode {
         bottomright = hardwareMap.get(DcMotor.class, "bottomright");
         bottomleft = hardwareMap.get(DcMotor.class, "bottomleft");
         arm = hardwareMap.get(DcMotorEx.class, "arm");
+        susan = hardwareMap.get(DcMotorEx.class, "susan");
         intake = hardwareMap.get(DcMotor.class, "intake");
         carousel = hardwareMap.get(DcMotor.class, "carousel");
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
-        pusher = hardwareMap.get(Servo.class, "pusher");
+        door = hardwareMap.get(Servo.class, "door");
 
 
         topright.setDirection(DcMotorSimple.Direction.REVERSE);
         topleft.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        pusher.setPosition(1);
+        door.setPosition(0);
         carousel.setPower(0);
 
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        susan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         int position = arm.getCurrentPosition();
         arm.setTargetPosition(position);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setPower(0);
 
+        int turningPosition = susan.getCurrentPosition();
+        susan.setTargetPosition(turningPosition);
+        susan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        susan.setPower(0);
+
+        carousel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         waitForStart();
 
         // get the PID coefficients for the RUN_USING_ENCODER  modes.
         PIDFCoefficients pidOrig = arm.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        PIDFCoefficients turningPidOrig = susan.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
         // change coefficients.
         arm.setVelocityPIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
         arm.setPositionPIDFCoefficients(5.0);
 
+        susan.setVelocityPIDFCoefficients(turning_NEW_P, turning_NEW_I, turning_NEW_D, turning_NEW_F);
+        susan.setPositionPIDFCoefficients(5.0);
+
         // re-read coefficients and verify change.
         PIDFCoefficients pidModified = arm.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        PIDFCoefficients turningPidModified = susan.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         arm.setPower(0.5);
+        susan.setPower(0.5);
+
 //        arm.setTargetPosition(300);
 
         while (opModeIsActive()) {
@@ -90,19 +117,22 @@ public class freightFrenzyDriver extends LinearOpMode {
                 (0.5 * (-gamepad1.left_stick_x + gamepad1.right_stick_x + gamepad1.right_stick_y));
             telemetry.update();
 
+
+
             //carousel
             if (gamepad1.b){
                 button = "gamepad1.b";
-
-                carousel.setPower(0.8 );
+                carousel.setPower(0.15 );
             }
-            if (gamepad1.y) {
-                button = "gamepad1.y";
+            if (gamepad1.x) {
+                button = "gamepad1.x";
                 carousel.setPower(-0.15);
             }
             else{
                 carousel.setPower(0);
             }
+
+
 
             //potentiometer test
             telemetry.addData("voltage", potentiometer.getVoltage());
@@ -113,18 +143,20 @@ public class freightFrenzyDriver extends LinearOpMode {
 //                    pidModified.p, pidModified.i, pidModified.d, pidModified.d);
             telemetry.addData("Arm", "Level: %d, Target: %d, Current: %d",
                     level, arm.getTargetPosition(), arm.getCurrentPosition());
+            telemetry.addData("susan", "Degree: %d, Target: %d, Current: %d",
+                    degree, susan.getTargetPosition(), susan.getCurrentPosition());
             telemetry.addData("Gamepad", button);
-
-
             telemetry.update();
+
+
 
 
             //arm
 //            setArmLevel(level);
 //            arm.setPower(0.5);
             currenttime = getRuntime();
-            if(gamepad1.left_bumper && currenttime - lasttime > 1){
-                button = "gamepad1.left_bumper";
+            if(gamepad2.a && currenttime - lasttime > 1){
+                button = "gamepad2.a";
                 level--;
                 lasttime = currenttime;
                 if (level < 0){
@@ -132,32 +164,77 @@ public class freightFrenzyDriver extends LinearOpMode {
                 }
                 setArm(level);
             }
-            if(gamepad1.right_bumper && currenttime - lasttime > 1){
-                button = "gamepad1.right_bumper";
+            if(gamepad2.y && currenttime - lasttime > 1){
+                button = "gamepad2.y";
                 level++;
                 lasttime = currenttime;
-                if (level > 3){
-                    level = 3;
+                if (level > 2){
+                    level = 2;
                 }
                 setArm(level);
             }
+
             position = arm.getCurrentPosition();
-            if (gamepad1.dpad_down && currenttime - lasttime > 0.1) {
+            if (gamepad2.dpad_down && currenttime - lasttime > 0.1) {
                 button = "gamepad1.dpad_down";
-                position -= 35;
-                arm.setTargetPosition(position);
-                lasttime = currenttime;
-            }
-            if (gamepad1.dpad_up && currenttime - lasttime > 0.1) {
-                button = "gamepad1.dpad_up";
                 position += 35;
                 arm.setTargetPosition(position);
                 lasttime = currenttime;
             }
+            if (gamepad2.dpad_up && currenttime - lasttime > 0.1) {
+                button = "gamepad1.dpad_up";
+                position -= 35;
+                arm.setTargetPosition(position);
+                lasttime = currenttime;
+            }
+
+
+
+            //turn
+            if(gamepad2.x && currenttime - lasttime > 1){
+                button = "gamepad2.x";
+                degree--;
+                lasttime = currenttime;
+                if (degree < -1){
+                    degree = 1;
+                }
+                setTurn(degree);
+            }
+            if(gamepad2.b && currenttime - lasttime > 1){
+                button = "gamepad2.b";
+                degree++;
+                lasttime = currenttime;
+                if (degree > 1){
+                    degree = 1;
+                }
+                setTurn(degree);
+            }
+
+            turningPosition = susan.getCurrentPosition();
+            if (gamepad2.left_bumper && currenttime - lasttime > 0.1) {
+                button = "gamepad2.dpad_left";
+                turningPosition -= 25;
+                if (turningPosition < -90){
+                    turningPosition = -90;
+                }
+                susan.setTargetPosition(turningPosition);
+                lasttime = currenttime;
+
+            }
+            if (gamepad2.right_bumper && currenttime - lasttime > 0.1) {
+                button = "gamepad2.dpad_right";
+                turningPosition += 25;
+                if (turningPosition > 90){
+                    turningPosition = 90;
+                }
+                susan.setTargetPosition(turningPosition);
+                lasttime = currenttime;
+            }
+
 
             //intake
-            if (gamepad1.a) {
-                button = "gamepad1.a";
+            if (gamepad1.right_bumper) {
+                button = "gamepad1.right_bumper";
                 intake.setPower(-1);
             }
             else{
@@ -165,17 +242,17 @@ public class freightFrenzyDriver extends LinearOpMode {
             }
 
             //output
-            if (gamepad1.x) {
-                button = "gamepad1.x";
-                intake.setPower(1);
-                pusher.setPosition(0);
+            if (gamepad1.left_bumper) {
+                button = "gamepad1.left_bumper";
+                door.setPosition(1);
             }
             else{
-                pusher.setPosition(1);
+                door.setPosition(0);
 //                setArm(0);
             }
 
         }
+
     }
 
     public void setArm (int level){
@@ -183,29 +260,40 @@ public class freightFrenzyDriver extends LinearOpMode {
 //            while (potentiometer.getVoltage() < 1.2165){
 //                arm.setPower(0.3);
 //            }
-            arm.setTargetPosition(-1000);
+            arm.setTargetPosition(-327);
         }
         else if (level == 2){
 //            while (potentiometer.getVoltage() < 1.4214){
 //                arm.setPower(0.3);
 //            }
-            arm.setTargetPosition(-860);
+            arm.setTargetPosition(-1120);
         }
-        else if (level == 3){
-//            while (potentiometer.getVoltage() < 1.7637){
-//                arm.setPower(0.3);
-//            }
-            arm.setTargetPosition(-600);
-        }
+
         else if (level == 0){
 //            while (potentiometer.getVoltage() > 1.076){
 //                arm.setPower(0.3);
 //            }
-            arm.setTargetPosition(-1100);
+            arm.setTargetPosition(3);
         }
 //        arm.setPower(0);
 
     }
+
+    public void setTurn (int degree){
+        if (degree == 1){
+            susan.setTargetPosition(-80);
+        }
+        else if (degree == -1){
+            susan.setTargetPosition(80);
+        }
+
+        else if (degree == 0){
+            susan.setTargetPosition(0);
+        }
+
+    }
+
+
 
 //    public void setArmLevel(int level) {
 //        double P = 0.05;
