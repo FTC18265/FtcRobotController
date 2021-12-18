@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -19,14 +20,16 @@ public class encoderTest extends LinearOpMode {
     private DcMotor bottomright;
     private DcMotor bottomleft;
     private DcMotorEx arm;
-    private DcMotorEx susan;
+    private DcMotor susan;
     private DcMotor intake;
     private Servo door;
     private DcMotor carousel;
 
     private AnalogInput potentiometer;
 
+    private ColorSensor colorsensor;
     private int level = 0;
+
     private double lasttime;
     private double currenttime;
 
@@ -45,28 +48,35 @@ public class encoderTest extends LinearOpMode {
         bottomright = hardwareMap.get(DcMotor.class, "bottomright");
         bottomleft = hardwareMap.get(DcMotor.class, "bottomleft");
         arm = hardwareMap.get(DcMotorEx.class, "arm");
-        susan = hardwareMap.get(DcMotorEx.class, "susan");
+        susan = hardwareMap.get(DcMotor.class, "susan");
         intake = hardwareMap.get(DcMotor.class, "intake");
         carousel = hardwareMap.get(DcMotor.class, "carousel");
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
         door = hardwareMap.get(Servo.class, "door");
+        colorsensor = hardwareMap.get(ColorSensor.class, "colorsensor");
 
+        telemetry.addData("colorsensor", colorsensor.blue());
+        telemetry.update();
 
-        boolean state = false;
-
-        door.setPosition(0);
+        susan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
 
 
         while (opModeIsActive()) {
+            if(gamepad1.a) {
+                susan.setPower(0.15);
+            }
 
-            if(gamepad1.a){
-               door.setPosition(1);
-            }
             if(gamepad1.b){
-                door.setPosition(0);
+                susan.setPower(-0.15);
             }
+
+            if(gamepad1.x){
+                susan.setPower(0);
+            }
+            telemetry.addData("colorsensor", colorsensor.blue());
+            telemetry.update();
 
         }
 
