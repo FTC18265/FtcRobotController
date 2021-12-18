@@ -32,7 +32,7 @@ public class freightFrenzyDriver extends LinearOpMode {
     private AnalogInput potentiometer;
 
     private int level = 0;
-    private int degree = 0;
+    private int degree = 1;
     private double lasttime;
     private double currenttime;
     private int lastDegree;
@@ -287,7 +287,6 @@ public class freightFrenzyDriver extends LinearOpMode {
 
     public void setArm (int level){
         if (level == 1){
-            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             arm.setPower(0.5);
 //            while (potentiometer.getVoltage() < 1.2165){
 //                arm.setPower(0.3);
@@ -295,7 +294,6 @@ public class freightFrenzyDriver extends LinearOpMode {
             arm.setTargetPosition(-327);
         }
         else if (level == 2){
-            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             arm.setPower(0.5);
 
 //            while (potentiometer.getVoltage() < 1.4214){
@@ -308,8 +306,9 @@ public class freightFrenzyDriver extends LinearOpMode {
 //            while (potentiometer.getVoltage() > 1.076){
 //                arm.setPower(0.3);
 //            }
-            arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            arm.setPower(0);
+            arm.setPower(0.5);
+            arm.setTargetPosition(-150);
+
         }
 //        arm.setPower(0);
 
