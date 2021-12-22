@@ -1,16 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name = "encoderTest")
 public class encoderTest extends LinearOpMode {
@@ -24,10 +24,10 @@ public class encoderTest extends LinearOpMode {
     private DcMotor intake;
     private Servo door;
     private DcMotor carousel;
+    private Rev2mDistanceSensor extradistancesensor;
 
     private AnalogInput potentiometer;
 
-    private ColorSensor colorsensor;
     private int level = 0;
 
     private double lasttime;
@@ -53,31 +53,22 @@ public class encoderTest extends LinearOpMode {
         carousel = hardwareMap.get(DcMotor.class, "carousel");
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
         door = hardwareMap.get(Servo.class, "door");
-        colorsensor = hardwareMap.get(ColorSensor.class, "colorsensor");
+        extradistancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "extradistancesensor");
 
-        telemetry.addData("colorsensor", colorsensor.blue());
         telemetry.update();
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setPower(0);
 
-        susan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
+        bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         waitForStart();
 
 
         while (opModeIsActive()) {
-            if(gamepad1.a) {
-                susan.setPower(0.15);
-            }
-
-            if(gamepad1.b){
-                susan.setPower(-0.15);
-            }
-
-            if(gamepad1.x){
-                susan.setPower(0);
-            }
-            telemetry.addData("colorsensor", colorsensor.blue());
+            telemetry.addData("distance sensor", extradistancesensor.getDistance(DistanceUnit.CM));
             telemetry.update();
-
         }
 
     }

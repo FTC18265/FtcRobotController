@@ -1,16 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name = "DriverControlPeriod")
 public class freightFrenzyDriver extends LinearOpMode {
@@ -20,14 +20,13 @@ public class freightFrenzyDriver extends LinearOpMode {
     private DcMotor bottomright;
     private DcMotor bottomleft;
     private DcMotorEx arm;
-    //private DcMotorEx susan;
-    private DcMotor susan;
+    private DcMotorEx susan;
+    //private DcMotor susan;
 
     private DcMotor intake;
     private Servo door;
     private DcMotor carousel;
-    private ColorSensor colorsensor;
-
+    private Rev2mDistanceSensor extradistancesensor;
 
     private AnalogInput potentiometer;
 
@@ -36,7 +35,6 @@ public class freightFrenzyDriver extends LinearOpMode {
     private double lasttime;
     private double currenttime;
     private int lastDegree;
-    private int keepPosition;
 
     private String button;
 
@@ -45,10 +43,10 @@ public class freightFrenzyDriver extends LinearOpMode {
     public static final double NEW_D = 0.0;
     public static final double NEW_F = 12.6;
 
-    public static final double turning_NEW_P = 30;
-    public static final double turning_NEW_I = 1.5;
-    public static final double turning_NEW_D = 0.5;
-    public static final double turning_NEW_F = 0;
+    public static final double turning_NEW_P = 1.2;
+    public static final double turning_NEW_I = 0.5;
+    public static final double turning_NEW_D = 0.0;
+    public static final double turning_NEW_F = 17;
 
     @Override
     public void runOpMode() {
@@ -58,18 +56,19 @@ public class freightFrenzyDriver extends LinearOpMode {
         bottomright = hardwareMap.get(DcMotor.class, "bottomright");
         bottomleft = hardwareMap.get(DcMotor.class, "bottomleft");
         arm = hardwareMap.get(DcMotorEx.class, "arm");
-        //susan = hardwareMap.get(DcMotorEx.class, "susan");
-        susan = hardwareMap.get(DcMotor.class, "susan");
+        susan = hardwareMap.get(DcMotorEx.class, "susan");
+        //susan = hardwareMap.get(DcMotor.class, "susan");
 
         intake = hardwareMap.get(DcMotor.class, "intake");
         carousel = hardwareMap.get(DcMotor.class, "carousel");
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
         door = hardwareMap.get(Servo.class, "door");
-        colorsensor = hardwareMap.get(ColorSensor.class, "colorsensor");
+        extradistancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "extradistancesensor");
 
 
         bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
         bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
+        susan.setDirection(DcMotorSimple.Direction.REVERSE);
 
         door.setPosition(0);
         carousel.setPower(0);
@@ -83,16 +82,12 @@ public class freightFrenzyDriver extends LinearOpMode {
 //        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setPower(0);
 
-        /*
+
         int turningPosition = susan.getCurrentPosition();
         susan.setTargetPosition(turningPosition);
         susan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         susan.setPower(0);
 
-         */
-
-
-        susan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         carousel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         waitForStart();
@@ -106,19 +101,21 @@ public class freightFrenzyDriver extends LinearOpMode {
         // change coefficients.
         arm.setVelocityPIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
         arm.setPositionPIDFCoefficients(5.0);
-/*
+
         susan.setVelocityPIDFCoefficients(turning_NEW_P, turning_NEW_I, turning_NEW_D, turning_NEW_F);
         susan.setPositionPIDFCoefficients(3.0);
         susan.setTargetPositionTolerance(3);
 
- */
+
 
         // re-read coefficients and verify change.
         PIDFCoefficients pidModified = arm.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-        //PIDFCoefficients turningPidModified = susan.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        PIDFCoefficients turningPidModified = susan.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         arm.setPower(0.5);
+        susan.setPower(0.5);
+
 
 //        arm.setTargetPosition(300);
 
@@ -137,23 +134,40 @@ public class freightFrenzyDriver extends LinearOpMode {
                 (0.5 * (-gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
             telemetry.update();
 
-
+            //susan.setPower(gamepad2.right_stick_x * 0.3);
 
             //carousel
             if (gamepad1.b){
                 button = "gamepad1.b";
-                carousel.setPower(0.3);
+                carousel.setPower(0.5);
             }
             if (gamepad1.x) {
                 button = "gamepad1.x";
-                carousel.setPower(-0.3);
+                carousel.setPower(-0.5);
             }
             if (gamepad1.y) {
                 button = "gamepad1.y";
                 carousel.setPower(0);
             }
 
+            /*
+            //distance sensor test
+            if(extradistancesensor.getDistance(DistanceUnit.CM) < 12.5){
+                telemetry.addLine("object detected");
+            }else{
+                telemetry.addLine("no object");
+            }
 
+            if(gamepad1.right_bumper && extradistancesensor.getDistance(DistanceUnit.CM) < 12.5){
+                 pullBack();
+
+                 level = 1;
+                 setArm(level);
+
+                 intake.setPower(0);
+            }
+
+             */
 
             //potentiometer test
             telemetry.addData("voltage", potentiometer.getVoltage());
@@ -167,12 +181,10 @@ public class freightFrenzyDriver extends LinearOpMode {
             telemetry.addData("susan", "Degree: %d, Target: %d, Current: %d",
                     degree, susan.getTargetPosition(), susan.getCurrentPosition());
             telemetry.addData("Gamepad", button);
-            telemetry.addData("colorsensor", colorsensor.blue());
-            telemetry.addData("position", keepPosition);
             telemetry.update();
 
 
-
+            telemetry.update();
 
             //arm
 //            setArmLevel(level);
@@ -213,7 +225,6 @@ public class freightFrenzyDriver extends LinearOpMode {
 
 
 
-            //turn
             if(gamepad2.x && currenttime - lasttime > 1){
                 button = "gamepad2.x";
                 lastDegree = degree;
@@ -235,13 +246,12 @@ public class freightFrenzyDriver extends LinearOpMode {
                 setTurn();
             }
 
-/*
             turningPosition = susan.getCurrentPosition();
             if (gamepad2.left_bumper && currenttime - lasttime > 0.1) {
                 button = "gamepad2.left_bumper";
-                turningPosition -= 15;
-                if (turningPosition < -90){
-                    turningPosition = -90;
+                turningPosition -= 35;
+                if (turningPosition > 0){
+                    turningPosition = 0;
                 }
                 susan.setTargetPosition(turningPosition);
                 lasttime = currenttime;
@@ -249,24 +259,28 @@ public class freightFrenzyDriver extends LinearOpMode {
             }
             if (gamepad2.right_bumper && currenttime - lasttime > 0.1) {
                 button = "gamepad2.right_bumper";
-                turningPosition += 15;
-                if (turningPosition > 90){
-                    turningPosition = 90;
+                turningPosition += 35;
+                if (turningPosition < -1500){
+                    turningPosition = -1500;
                 }
                 susan.setTargetPosition(turningPosition);
                 lasttime = currenttime;
             }
 
 
- */
+
 
             //intake
             if (gamepad1.right_bumper) {
                 button = "gamepad1.right_bumper";
-                intake.setPower(-1);
+                intake.setPower(-0.3);
             }
             else{
                 intake.setPower(0);
+            }
+
+            if(gamepad1.a){
+                intake.setPower(0.3);
             }
 
             //output
@@ -291,7 +305,7 @@ public class freightFrenzyDriver extends LinearOpMode {
 //            while (potentiometer.getVoltage() < 1.2165){
 //                arm.setPower(0.3);
 //            }
-            arm.setTargetPosition(-327);
+            arm.setTargetPosition(-700);
         }
         else if (level == 2){
             arm.setPower(0.5);
@@ -299,7 +313,7 @@ public class freightFrenzyDriver extends LinearOpMode {
 //            while (potentiometer.getVoltage() < 1.4214){
 //                arm.setPower(0.3);
 //            }
-            arm.setTargetPosition(-1120);
+            arm.setTargetPosition(-1200);
         }
 
         else if (level == 0){
@@ -307,13 +321,54 @@ public class freightFrenzyDriver extends LinearOpMode {
 //                arm.setPower(0.3);
 //            }
             arm.setPower(0.5);
-            arm.setTargetPosition(-150);
+            arm.setTargetPosition(0);
 
         }
 //        arm.setPower(0);
 
     }
 
+    public void setTurn (){
+        if (degree == 1){
+            susan.setPower(0.5);
+//            while (potentiometer.getVoltage() < 1.2165){
+//                arm.setPower(0.3);
+//            }
+            susan.setTargetPosition(0);
+        }
+        else if (degree == -1){
+            susan.setPower(0.5);
+
+//            while (potentiometer.getVoltage() < 1.4214){
+//                arm.setPower(0.3);
+//            }
+            susan.setTargetPosition(-1500);
+        }
+
+        else if (degree == 0){
+//            while (potentiometer.getVoltage() > 1.076){
+//                arm.setPower(0.3);
+//            }
+            susan.setPower(0.5);
+            susan.setTargetPosition(-750);
+
+        }
+    }
+
+    public void pullBack(){
+        topleft.setPower(-0.3);
+        topright.setPower(-0.3);
+        bottomright.setPower(-0.3);
+        bottomleft.setPower(-0.3);
+
+        sleep(1000);
+
+        topleft.setPower(0);
+        topright.setPower(0);
+        bottomright.setPower(0);
+        bottomleft.setPower(0);
+    }
+/*
     public void setTurn (){
         if (degree > lastDegree){
 
@@ -330,7 +385,7 @@ public class freightFrenzyDriver extends LinearOpMode {
 
             }
             if(degree == 1){
-                susan.setPower(-0.2);
+                susan.setPower(-0.3);
 
                 while(colorsensor.blue() < 1000){
 
@@ -340,7 +395,7 @@ public class freightFrenzyDriver extends LinearOpMode {
         }
         if (degree < lastDegree){
             if(degree == 0){
-                susan.setPower(0.2);
+                susan.setPower(0.3);
 
                 while(colorsensor.blue() > 500){
 
@@ -362,37 +417,8 @@ public class freightFrenzyDriver extends LinearOpMode {
         }//keepPosition = susan.getCurrentPosition();
     }
 
-//    public void setArmLevel(int level) {
-//        double P = 0.05;
-//        switch (level) {
-//            case 0:
-//                PController(1.076, P);
-//                break;
-//            case 1:
-//                PController(1.2165, P);
-//                break;
-//            case 2:
-//                PController(1.4214, P);
-//                break;
-//            case 3:
-//                PController(1.7637, P);
-//                break;
-//            default:
-//                break;
-//        }
-//    }
-//
-//    public void PController(double target, double p) {
-//        int currentPosition = arm.getCurrentPosition();
-//        int targetPosition;
-//        double maxPower = 0.3;
-//        double input = potentiometer.getVoltage();
-//        double error = target - input;
-//        double power = error * p;
-//        power = Math.max(power, -maxPower);
-//        power = Math.min(power, maxPower);
-//        arm.setPower(power);
-////            targetPosition = currentPosition + (error > 0 ? 10 : -10);
-////            arm.setTargetPosition(targetPosition);
-//    }
+ */
+
+
+
 }
