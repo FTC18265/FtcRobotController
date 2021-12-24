@@ -24,7 +24,7 @@ public class encoderTest extends LinearOpMode {
     private DcMotor intake;
     private Servo door;
     private DcMotor carousel;
-    private Rev2mDistanceSensor extradistancesensor;
+    private Rev2mDistanceSensor distancesensor;
 
     private AnalogInput potentiometer;
 
@@ -53,7 +53,7 @@ public class encoderTest extends LinearOpMode {
         carousel = hardwareMap.get(DcMotor.class, "carousel");
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
         door = hardwareMap.get(Servo.class, "door");
-        extradistancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "extradistancesensor");
+        distancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "distancesensor");
 
         telemetry.update();
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -67,8 +67,37 @@ public class encoderTest extends LinearOpMode {
 
 
         while (opModeIsActive()) {
-            telemetry.addData("distance sensor", extradistancesensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("distance", distancesensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("arm", arm.getCurrentPosition());
+
             telemetry.update();
+/*
+            if(gamepad1.x){
+                while(distancesensor.getDistance(DistanceUnit.CM) > 27){
+                    topleft.setPower(-0.25);
+                    topright.setPower(0.25);
+                    bottomright.setPower(-0.25);
+                    bottomleft.setPower(0.25);
+                }
+                topleft.setPower(0.3);
+                topright.setPower(0.25);
+                bottomright.setPower(-0.25);
+                bottomleft.setPower(-0.3);
+                sleep(100);
+
+                topleft.setPower(0);
+                topright.setPower(0.25);
+                bottomright.setPower(-0.25);
+                bottomleft.setPower(0);
+
+                carousel.setPower(-0.5);
+            }
+
+ */
+            if(gamepad1.x){
+
+            }
+
         }
 
     }
