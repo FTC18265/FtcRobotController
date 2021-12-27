@@ -6,8 +6,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class SusanController {
     private DcMotorEx susan;
-    public static final double turning_NEW_P = 1.2;
-    public static final double turning_NEW_I = 0.9;
+    /*
+    public static final double turning_NEW_P = 2.5;
+    public static final double turning_NEW_I = 0.75;
+    public static final double turning_NEW_D = 0.0;
+    public static final double turning_NEW_F = 0;
+     */
+    public static final double turning_NEW_P = 2.75;
+    public static final double turning_NEW_I = 1.5;
     public static final double turning_NEW_D = 0.0;
     public static final double turning_NEW_F = 0;
     private int degree = 1;
@@ -28,8 +34,9 @@ public class SusanController {
         susan.setPower(0);
 
         susan.setVelocityPIDFCoefficients(turning_NEW_P, turning_NEW_I, turning_NEW_D, turning_NEW_F);
-        susan.setPositionPIDFCoefficients(3.0);
-        susan.setTargetPositionTolerance(3);
+        susan.setPositionPIDFCoefficients(1);
+        //susan.setPositionPIDFCoefficients(1);
+        susan.setTargetPositionTolerance(1);
 
         susan.setPower(0.5);
 

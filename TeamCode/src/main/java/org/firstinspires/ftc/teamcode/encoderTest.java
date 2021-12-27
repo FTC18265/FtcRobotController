@@ -69,6 +69,8 @@ public class encoderTest extends LinearOpMode {
         while (opModeIsActive()) {
             telemetry.addData("distance", distancesensor.getDistance(DistanceUnit.CM));
             telemetry.addData("arm", arm.getCurrentPosition());
+            telemetry.addData("susan", susan.getCurrentPosition());
+
 
             telemetry.update();
 /*

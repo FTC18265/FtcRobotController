@@ -1,4 +1,4 @@
-                                          package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
@@ -28,7 +28,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
 import java.util.List;
 import java.util.Locale;
 
-@Disabled
+@Autonomous (name = "ultimategoalauto")
 public class autonomousPeriod extends LinearOpMode {
 
     private Servo arm;
