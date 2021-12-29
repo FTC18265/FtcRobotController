@@ -112,8 +112,7 @@ public class freightFrenzyAuto extends LinearOpMode {
         PIDFCoefficients pidModified = arm.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         PIDFCoefficients turningPidModified = susan.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        int placement = 3;
-        int position = 1;
+        int position = 0;
 
 
         arm.setPower(0.5);
@@ -122,6 +121,7 @@ public class freightFrenzyAuto extends LinearOpMode {
         update();
         telemetry.addData(">", "start detecting");
         telemetry.update();
+        /*
         while(!opModeIsActive()){
             if (tfod != null) {
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
@@ -139,10 +139,11 @@ public class freightFrenzyAuto extends LinearOpMode {
                         telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                                 recognition.getRight(), recognition.getBottom());
                         if ((recognition.getLeft() > 140 && recognition.getLabel() == "Marker" && recognition.getLeft() < 300) ||
-                                (recognition.getLeft() > 450 && recognition.getLabel() == "Duck")){
+                                (recognition.getLeft() > 450 && (recognition.getLabel() == "Duck" || recognition.getLabel() == "Cube"))){
                             position = 3;
                         } else
-                        if ((recognition.getLeft() > 140 && recognition.getLabel() == "Duck" && recognition.getLeft() < 300) ||
+                        if ((recognition.getLeft() > 140 && (recognition.getLabel() == "Duck" ||
+                                recognition.getLabel() == "Cube") && recognition.getLeft() < 300) ||
                                 (recognition.getLeft() > 450 && recognition.getLabel() == "Marker")){
                             position = 2;
                         }
@@ -170,47 +171,110 @@ public class freightFrenzyAuto extends LinearOpMode {
             }
         }
 
+         */
+
 ///////////////////////////////
         waitForStart();
 
+        //detection
+        while(distancesensor.getDistance(DistanceUnit.CM) < 15){
+            forward(0.3);
+        }
+        stopMove();
+
+        while(position == 0){
+            if (tfod != null) {
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    telemetry.addData("position", position);
+                    int i = 0;
+                    String labelONe = "None";
+                    String labelTwo = "None";
+                    String labelThree = "None";
+                    for (Recognition recognition : updatedRecognitions) {
+                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                recognition.getLeft(), recognition.getTop());
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                recognition.getRight(), recognition.getBottom());
+                        if ((recognition.getLeft() > 450 && (recognition.getLabel() == "Duck" || recognition.getLabel() == "Cube"))){
+                            position = 3;
+                        } else
+                        if ((recognition.getLeft() > 140 && (recognition.getLabel() == "Duck" ||
+                                recognition.getLabel() == "Cube") && recognition.getLeft() < 300) ||
+                                (recognition.getLeft() > 450 && recognition.getLabel() == "Marker")){
+                            position = 2;
+                        }
+
+                        if (i == 0){
+                            labelONe = recognition.getLabel();
+                        }
+                        if (i == 1){
+                            labelTwo = recognition.getLabel();
+                        }
+                        if (i == 2){
+                            labelThree = recognition.getLabel();
+                        }
+
+                        if (labelONe == "Marker" && labelTwo == "Marker" || labelThree == "Marker"){
+                            position = 1;
+                            labelONe = "None";
+                            labelTwo = "None";
+                            labelThree = "None";
+                        }
+                        i++;
+                    }
+                    telemetry.addData("detected position", position);
+                    telemetry.update();
+                }
+            }
+        }
+
+        left(1000);
+
+
+/*
         //start program
         armController.autoLevel(3);
         sleep(3000);
 
-
-
         susanController.autoLevel(0);
         sleep(5000);
 
-        armController.autoLevel(placement);
+        armController.autoLevel(position);
         sleep(1000);
 
         update();
 
-        if(placement == 1){
+        if(position == 1){
             while(distancesensor.getDistance(DistanceUnit.CM) < 34.3){
                 forward();
             }
             stopMove();
         }
-        else if (placement == 2){
+        else if (position == 2){
             while ((distancesensor.getDistance(DistanceUnit.CM)) < 42.1){
                 forward();
             }
             stopMove();
         }
-        else if (placement == 3){
+        else if (position == 3){
             while ((distancesensor.getDistance(DistanceUnit.CM)) < 45.5){
                 forward();
             }
             stopMove();
+
+            door.setPosition(1);
+            update();
+            sleep(3000);
+            susanController.autoLevel(-1);
+            door.setPosition(0);
         }
 
-        door.setPosition(1);
-        update();
-        sleep(3000);
-        susanController.autoLevel(-1);
-        door.setPosition(0);
+
+ */
+
 
         sleep(10000);
 
@@ -219,25 +283,44 @@ public class freightFrenzyAuto extends LinearOpMode {
 
 /////////////////methods
     public void pullBack(){
-        backward();
+        backward(0.3);
 
         sleep(1000);
 
         stopMove();
     }
 
-    public void forward(){
-        topleft.setPower(0.3);
-        topright.setPower(-0.3);
-        bottomright.setPower(0.3);
-        bottomleft.setPower(-0.3);
+    public void forward(double power){
+        topleft.setPower(power);
+        topright.setPower(-power);
+        bottomright.setPower(power);
+        bottomleft.setPower(-power);
     }
 
-    public void backward(){
-        topleft.setPower(-0.3);
-        topright.setPower(0.3);
-        bottomright.setPower(-0.3);
-        bottomleft.setPower(0.3);
+    public void backward(double power){
+        topleft.setPower(-power);
+        topright.setPower(power);
+        bottomright.setPower(-power);
+        bottomleft.setPower(power);
+    }
+
+    public void left(int distance){
+        setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        setPower(0.5);
+
+        topleft.setTargetPosition(-distance);
+        topright.setTargetPosition(-distance);
+        bottomright.setTargetPosition(-distance);
+        bottomleft.setTargetPosition(-distance);
+    }
+
+    public void right(double power){
+        topleft.setPower(power);
+        topright.setPower(power);
+        bottomright.setPower(power);
+        bottomleft.setPower(power);
     }
 
     public void stopMove(){
@@ -253,6 +336,20 @@ public class freightFrenzyAuto extends LinearOpMode {
         telemetry.addData("susan", susan.getCurrentPosition());
 
         telemetry.update();
+    }
+
+    public void setMode(DcMotor.RunMode mode){
+        topleft.setMode(mode);
+        topright.setMode(mode);
+        bottomright.setMode(mode);
+        bottomleft.setMode(mode);
+    }
+
+    public void setPower(double power) {
+        topleft.setPower(power);
+        topright.setPower(power);
+        bottomright.setPower(power);
+        bottomleft.setPower(power);
     }
 
     private void initVuforia() {

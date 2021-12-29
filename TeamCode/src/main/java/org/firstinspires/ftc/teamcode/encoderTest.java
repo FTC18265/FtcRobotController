@@ -62,45 +62,57 @@ public class encoderTest extends LinearOpMode {
         bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
         bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        topleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        topright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        topleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        topright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
 
+        topleft.setPower(0.3);
+        topright.setPower(0.3);
+        bottomleft.setPower(0.3);
+        bottomright.setPower(0.3);
 
-        while (opModeIsActive()) {
-            telemetry.addData("distance", distancesensor.getDistance(DistanceUnit.CM));
-            telemetry.addData("arm", arm.getCurrentPosition());
-            telemetry.addData("susan", susan.getCurrentPosition());
+        sleep(10000);
 
-
-            telemetry.update();
-/*
-            if(gamepad1.x){
-                while(distancesensor.getDistance(DistanceUnit.CM) > 27){
-                    topleft.setPower(-0.25);
-                    topright.setPower(0.25);
-                    bottomright.setPower(-0.25);
-                    bottomleft.setPower(0.25);
-                }
-                topleft.setPower(0.3);
-                topright.setPower(0.25);
-                bottomright.setPower(-0.25);
-                bottomleft.setPower(-0.3);
-                sleep(100);
-
-                topleft.setPower(0);
-                topright.setPower(0.25);
-                bottomright.setPower(-0.25);
-                bottomleft.setPower(0);
-
-                carousel.setPower(-0.5);
-            }
-
- */
-            if(gamepad1.x){
-
-            }
-
-        }
+//        while (opModeIsActive()) {
+//            telemetry.addData("distance", distancesensor.getDistance(DistanceUnit.CM));
+//            telemetry.addData("arm", arm.getCurrentPosition());
+//            telemetry.addData("susan", susan.getCurrentPosition());
+//
+//
+//            telemetry.update();
+///*
+//            if(gamepad1.x){
+//                while(distancesensor.getDistance(DistanceUnit.CM) > 27){
+//                    topleft.setPower(-0.25);
+//                    topright.setPower(0.25);
+//                    bottomright.setPower(-0.25);
+//                    bottomleft.setPower(0.25);
+//                }
+//                topleft.setPower(0.3);
+//                topright.setPower(0.25);
+//                bottomright.setPower(-0.25);
+//                bottomleft.setPower(-0.3);
+//                sleep(100);
+//
+//                topleft.setPower(0);
+//                topright.setPower(0.25);
+//                bottomright.setPower(-0.25);
+//                bottomleft.setPower(0);
+//
+//                carousel.setPower(-0.5);
+//            }
+//
+// */
+//
+//        }
 
     }
 
