@@ -94,16 +94,26 @@ public class freightFrenzyDriver extends LinearOpMode {
 
         while (opModeIsActive()) {
             //drive train
-
-            bottomright.setPower
-                (0.5 * (gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
             topright.setPower
-                (0.5 * (-gamepad1.left_stick_x + (gamepad1.right_stick_x + gamepad1.right_stick_y)));
-            bottomleft.setPower
-                (0.5 * (gamepad1.left_stick_x + (gamepad1.right_stick_x + gamepad1.right_stick_y)));
+                    (0.5 * (-gamepad1.left_stick_x + (gamepad1.right_stick_x + gamepad1.right_stick_y)));
+            bottomright.setPower
+                    (0.5 * (gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
             topleft.setPower
-                (0.5 * (-gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
+                    (0.5 * (-gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
+            bottomleft.setPower
+                    (0.5 * (gamepad1.left_stick_x + (gamepad1.right_stick_x + gamepad1.right_stick_y)));
+
             telemetry.update();
+
+//            topright.setPower
+//                  (0.5 * (gamepad1.left_stick_x + gamepad1.right_stick_x + gamepad1.right_stick_y));
+//            bottomright.setPower
+//                  (0.5 * (-gamepad1.left_stick_x + (gamepad1.right_stick_x - gamepad1.right_stick_y)));
+//            topleft.setPower
+//                  (0.5 * (gamepad1.left_stick_x + (gamepad1.right_stick_x - gamepad1.right_stick_y)));
+//            bottomleft.setPower
+//                  (0.5 * (-gamepad1.left_stick_x + gamepad1.right_stick_x + gamepad1.right_stick_y));
+//            telemetry.update();
 
 
             //carousel

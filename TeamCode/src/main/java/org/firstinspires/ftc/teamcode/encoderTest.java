@@ -72,14 +72,28 @@ public class encoderTest extends LinearOpMode {
         bottomleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         bottomright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
+        bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
+
         waitForStart();
 
-        topleft.setPower(0.3);
-        topright.setPower(0.3);
-        bottomleft.setPower(0.3);
-        bottomright.setPower(0.3);
+        while(opModeIsActive()){
+            bottomright.setPower
+                    (0.5 * (gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
+            topright.setPower
+                    (0.5 * (-gamepad1.left_stick_x + (gamepad1.right_stick_x + gamepad1.right_stick_y)));
+            bottomleft.setPower
+                    (0.5 * (gamepad1.left_stick_x + (gamepad1.right_stick_x + gamepad1.right_stick_y)));
+            topleft.setPower
+                    (0.5 * (-gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
 
-        sleep(10000);
+            telemetry.addData("topright", topright.getCurrentPosition());
+            telemetry.addData("topleft", topleft.getCurrentPosition());
+            telemetry.addData("bottomright", bottomright.getCurrentPosition());
+            telemetry.addData("bottomleft", bottomleft.getCurrentPosition());
+
+            telemetry.update();
+        }
 
 //        while (opModeIsActive()) {
 //            telemetry.addData("distance", distancesensor.getDistance(DistanceUnit.CM));

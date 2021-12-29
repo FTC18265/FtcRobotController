@@ -49,8 +49,8 @@ public class gyroTest extends LinearOpMode {
 //        bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
 //        topright.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
-        topleft.setDirection(DcMotorSimple.Direction.REVERSE);
+        bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
+        topright.setDirection(DcMotorSimple.Direction.REVERSE);
 
         topleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         topright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -67,7 +67,9 @@ public class gyroTest extends LinearOpMode {
 
         waitForStart();
 
-        gyroHorizontal(0.3, 24);
+        //gyroDrive(0.3, 12, 0);
+        gyroHorizontal(0.1, 24, 0);
+        sleep(100000);
     }
 
     public void gyroTurn (  double speed, double angle) {
@@ -109,9 +111,6 @@ public class gyroTest extends LinearOpMode {
         double  bottomLeftSpeed;
         double  bottomRightSpeed;
 
-        // Ensure that the opmode is still active
-        if (opModeIsActive()) {
-
             // Determine new target position, and pass to motor controller
             moveCounts = (int)(distance * COUNTS_PER_INCH);
             newTopleftTarget = topleft.getCurrentPosition() + moveCounts;
@@ -138,9 +137,8 @@ public class gyroTest extends LinearOpMode {
             bottomright.setPower(speed);
 
             // keep looping while we are still active, and BOTH motors are running.
-            while (opModeIsActive() &&
-                    (topleft.isBusy() && topright.isBusy() &&
-                            bottomleft.isBusy() && bottomright.isBusy())) {
+            while (topleft.isBusy() && topright.isBusy() &&
+                            bottomleft.isBusy() && bottomright.isBusy()) {
 
                 // adjust relative speed based on heading error.
                 error = getError(angle);
@@ -194,30 +192,46 @@ public class gyroTest extends LinearOpMode {
             topright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             bottomleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             bottomright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
+
     }
 
     public void gyroHorizontal( double speed,
-                                double distance) {
-        double newTopleftTarget;
-        double newTopRightTarget;
-        double newBottomLeftTarget;
-        double newBottomRightTarget;
+                                double distance,
+                                double angle) {
+        int newTopRightTarget;
+        int newBottomRightTarget;
+        int newTopleftTarget;
+        int newBottomLeftTarget;
+        double  max;
+        double  error;
+        double  steer;
+        double  topLeftSpeed;
+        double  topRightSpeed;
+        double  bottomLeftSpeed;
+        double  bottomRightSpeed;
         int moveCounts;
         moveCounts = (int) (distance * COUNTS_PER_INCH * 1.4);
 
         if (distance > 0) {
-            topright.setDirection(DcMotorSimple.Direction.REVERSE);
-            bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
+//            topright.setDirection(DcMotorSimple.Direction.REVERSE);
+//            bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
         } else if (distance < 0) {
             topleft.setDirection(DcMotorSimple.Direction.REVERSE);
             bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
         }
 
-        topleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        topright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bottomleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bottomright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        if (distance > 0) {
+//            topright.setDirection(DcMotorSimple.Direction.REVERSE);
+//            bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
+//        } else if (distance < 0) {
+//            topleft.setDirection(DcMotorSimple.Direction.REVERSE);
+//            bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
+//        }
+
+//        topleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        topright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        bottomleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        bottomright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 //        if (distance > 0) {
 //            newTopleftTarget = (topleft.getCurrentPosition() + moveCounts) * 0.8;
@@ -231,17 +245,11 @@ public class gyroTest extends LinearOpMode {
 //            newBottomRightTarget = (bottomright.getCurrentPosition() + moveCounts) * 0.8;
 //        }
 
-        if (distance > 0) {
-            newTopleftTarget = (topleft.getCurrentPosition() + moveCounts);
-            newTopRightTarget = (topright.getCurrentPosition() + moveCounts);
-            newBottomLeftTarget = (bottomleft.getCurrentPosition() + moveCounts);
-            newBottomRightTarget = (bottomright.getCurrentPosition() + moveCounts);
-        } else {
-            newTopleftTarget = (topleft.getCurrentPosition() + moveCounts);
-            newTopRightTarget = (topright.getCurrentPosition() + moveCounts);
-            newBottomLeftTarget = (bottomleft.getCurrentPosition() + moveCounts);
-            newBottomRightTarget = (bottomright.getCurrentPosition() + moveCounts);
-        }
+
+        newTopleftTarget = (topleft.getCurrentPosition() + moveCounts);
+        newTopRightTarget = (topright.getCurrentPosition() + moveCounts);
+        newBottomLeftTarget = (bottomleft.getCurrentPosition() + moveCounts);
+        newBottomRightTarget = (bottomright.getCurrentPosition() + moveCounts);
 
         topleft.setTargetPosition((int) newTopleftTarget);
         topright.setTargetPosition((int) newTopRightTarget);
@@ -258,6 +266,74 @@ public class gyroTest extends LinearOpMode {
         topright.setPower(speed);
         bottomleft.setPower(speed);
         bottomright.setPower(speed);
+
+        while (topleft.isBusy() && topright.isBusy() &&
+                bottomleft.isBusy() && bottomright.isBusy()) {
+
+            // adjust relative speed based on heading error.
+            error = getError(angle);
+            steer = getSteer(error, P_DRIVE_COEFF);
+
+            // if driving in reverse, the motor correction also needs to be reversed
+//            if (distance > 0) {
+//                topLeftSpeed = speed - steer;
+//                topRightSpeed = speed - steer;
+//                bottomLeftSpeed = speed + steer;
+//                bottomRightSpeed = speed + steer;
+//            } else {
+//                topLeftSpeed = speed + steer;
+//                topRightSpeed = speed + steer;
+//                bottomLeftSpeed = speed - steer;
+//                bottomRightSpeed = speed - steer;
+//            }
+            if (distance < 0)
+                steer *= -1.0;
+
+            topLeftSpeed = speed + steer;
+            topRightSpeed = speed - steer;
+            bottomLeftSpeed = speed + steer;
+            bottomRightSpeed = speed - steer;
+
+            // Normalize speeds if either one exceeds +/- 1.0;
+            max = Math.max(Math.abs(topLeftSpeed), Math.abs(topRightSpeed));
+            if (max > 1.0)
+            {
+                topLeftSpeed /= max;
+                topRightSpeed /= max;
+            }
+            max = Math.max(Math.abs(bottomLeftSpeed), Math.abs(bottomRightSpeed));
+            if (max > 1.0)
+            {
+                bottomLeftSpeed /= max;
+                bottomRightSpeed /= max;
+            }
+
+            topleft.setPower(topLeftSpeed);
+            topright.setPower(topRightSpeed);
+            bottomleft.setPower(bottomLeftSpeed);
+            bottomright.setPower(bottomRightSpeed);
+
+            // Display drive status for the driver.
+            telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
+            telemetry.addData("Target",  "%7d:%7d",      newTopleftTarget,  newTopRightTarget,
+                    newBottomLeftTarget, newBottomRightTarget);
+            telemetry.addData("Actual",  "%7d:%7d",      topleft.getCurrentPosition(),
+                    topright.getCurrentPosition(), bottomleft.getCurrentPosition(),
+                    bottomright.getCurrentPosition());
+            telemetry.addData("Speed",   "%5.2f:%5.2f",  topLeftSpeed, topRightSpeed,
+                    bottomLeftSpeed, bottomRightSpeed);
+            telemetry.update();
+        }
+
+        stopAllMotors();
+
+        topleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        topright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        telemetry.addData("targetposition", newBottomLeftTarget);
+        telemetry.update();
     }
 
     private void stopAllMotors() {
