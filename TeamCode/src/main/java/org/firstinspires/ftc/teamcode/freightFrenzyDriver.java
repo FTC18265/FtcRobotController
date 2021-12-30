@@ -31,9 +31,13 @@ public class freightFrenzyDriver extends LinearOpMode {
 
     private int level = 0;
     private int degree = 1;
-    private double lasttime;
-    private double currenttime;
-    private int lastDegree;
+    private double lasttime = 0;
+    private double currenttime = 0;
+    private int lastDegree = 0;
+    private boolean secureFreight = false;
+    private double secureFreightStartTime = 0;
+    private boolean releaseFreight = false;
+    private double releaseFreightStartTime = 0;
 
     private String button;
 //var
@@ -73,10 +77,15 @@ public class freightFrenzyDriver extends LinearOpMode {
         bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
         bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+
         door.setPosition(0);
         carousel.setPower(0);
 
         carousel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        telemetry.addLine("1234567810");
+        telemetry.update();
 
         waitForStart();
 
@@ -166,9 +175,19 @@ public class freightFrenzyDriver extends LinearOpMode {
                 armController.adjustLevel(-1);
             }
             if(gamepad2.y && currenttime - lasttime > 1){
-                button = "gamepad2.y";
                 lasttime = currenttime;
+                button = "gamepad2.y";
                 armController.adjustLevel(1);
+
+                //secure freight
+                secureFreight = true;
+                secureFreightStartTime = currenttime;
+                intake.setPower(-0.075);
+            }
+
+            if(secureFreight == true && currenttime - secureFreightStartTime > 1){
+                intake.setPower(0);
+                secureFreight = false;
             }
 
 
@@ -213,24 +232,33 @@ public class freightFrenzyDriver extends LinearOpMode {
             //intake
             if (gamepad1.right_bumper) {
                 button = "gamepad1.right_bumper";
-                intake.setPower(-0.5);
+                intake.setPower(0.5);
             }
-            else{
+            else if (secureFreight == false && releaseFreight == false){
                 intake.setPower(0);
             }
 
             if(gamepad1.a){
-                intake.setPower(0.5);
+                intake.setPower(-0.5);
             }
 
             //output
             if (gamepad1.left_bumper) {
                 button = "gamepad1.left_bumper";
                 door.setPosition(1);
+
+                releaseFreight = true;
+                intake.setPower(0.075);
+                releaseFreightStartTime = currenttime;
             }
             else{
                 door.setPosition(0);
 //                setArm(0);
+            }
+
+            if(releaseFreight == true && currenttime - releaseFreightStartTime > 0.5){
+                intake.setPower(0);
+                releaseFreight = false;
             }
 
             //susan.setTargetPosition(keepPosition);

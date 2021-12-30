@@ -36,6 +36,8 @@ public class gyroTest extends LinearOpMode {
     static final double     HEADING_THRESHOLD       = 1 ;      // As tight as we can make it with an integer gyro
     static final double     P_TURN_COEFF            = 0.07;     // Larger is more responsive, but also less stable
     static final double     P_DRIVE_COEFF           = -0.07;     // Larger is more responsive, but also less stable
+    static final double     P_HORIZONTAL_COEFF      = -0.01;     // Larger is more responsive, but also less stable
+
 
 
     @Override
@@ -48,9 +50,10 @@ public class gyroTest extends LinearOpMode {
 
 //        bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
 //        topright.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
+        topleft.setDirection(DcMotorSimple.Direction.FORWARD);
         topright.setDirection(DcMotorSimple.Direction.REVERSE);
+        bottomleft.setDirection(DcMotorSimple.Direction.FORWARD);
+        bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
 
         topleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         topright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -67,9 +70,8 @@ public class gyroTest extends LinearOpMode {
 
         waitForStart();
 
-        //gyroDrive(0.3, 12, 0);
-        gyroHorizontal(0.1, 24, 0);
-        sleep(100000);
+        gyroTurn(0.3, 45);
+
     }
 
     public void gyroTurn (  double speed, double angle) {
@@ -213,20 +215,20 @@ public class gyroTest extends LinearOpMode {
         moveCounts = (int) (distance * COUNTS_PER_INCH * 1.4);
 
         if (distance > 0) {
+            topleft.setDirection(DcMotorSimple.Direction.FORWARD);
+            topright.setDirection(DcMotorSimple.Direction.FORWARD);
+            bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
+            bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
 //            topright.setDirection(DcMotorSimple.Direction.REVERSE);
 //            bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
         } else if (distance < 0) {
             topleft.setDirection(DcMotorSimple.Direction.REVERSE);
-            bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
-        }
-
-//        if (distance > 0) {
-//            topright.setDirection(DcMotorSimple.Direction.REVERSE);
-//            bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
-//        } else if (distance < 0) {
+            topright.setDirection(DcMotorSimple.Direction.REVERSE);
+            bottomleft.setDirection(DcMotorSimple.Direction.FORWARD);
+            bottomright.setDirection(DcMotorSimple.Direction.FORWARD);
 //            topleft.setDirection(DcMotorSimple.Direction.REVERSE);
 //            bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
-//        }
+        }
 
 //        topleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        topright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -272,7 +274,7 @@ public class gyroTest extends LinearOpMode {
 
             // adjust relative speed based on heading error.
             error = getError(angle);
-            steer = getSteer(error, P_DRIVE_COEFF);
+            steer = getSteer(error, P_HORIZONTAL_COEFF);
 
             // if driving in reverse, the motor correction also needs to be reversed
 //            if (distance > 0) {
@@ -361,8 +363,8 @@ public class gyroTest extends LinearOpMode {
         }
         else {
             steer = getSteer(error, PCoeff);
-            rightSpeed  = speed * steer;
-            leftSpeed   = -rightSpeed;
+            leftSpeed  = speed * steer;
+            rightSpeed   = -leftSpeed;
         }
 
         // Send desired speeds to motors.

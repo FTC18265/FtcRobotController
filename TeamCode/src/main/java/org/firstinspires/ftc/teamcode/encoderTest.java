@@ -40,6 +40,8 @@ public class encoderTest extends LinearOpMode {
     public static final double NEW_D = 0.0;
     public static final double NEW_F = 12.6;
 
+
+
     @Override
     public void runOpMode() {
 
@@ -59,41 +61,124 @@ public class encoderTest extends LinearOpMode {
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setPower(0);
 
+        topleft.setDirection(DcMotorSimple.Direction.FORWARD);
+        topright.setDirection(DcMotorSimple.Direction.REVERSE);
+        bottomleft.setDirection(DcMotorSimple.Direction.FORWARD);
         bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
-        bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         topleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         topright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         bottomleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         bottomright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        topleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        topright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        bottomleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        bottomright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
-        bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
+//        topleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        topright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        bottomleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        bottomright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        topleft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        topright.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        bottomleft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        bottomright.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+        int rotation = 0;
+        int remaining = 0;
+
 
         waitForStart();
 
         while(opModeIsActive()){
-            bottomright.setPower
-                    (0.5 * (gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
-            topright.setPower
-                    (0.5 * (-gamepad1.left_stick_x + (gamepad1.right_stick_x + gamepad1.right_stick_y)));
-            bottomleft.setPower
-                    (0.5 * (gamepad1.left_stick_x + (gamepad1.right_stick_x + gamepad1.right_stick_y)));
-            topleft.setPower
-                    (0.5 * (-gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
+            if(gamepad1.x){
+                intake.setPower(0.5);
+            }
+            intake.setPower(0);
 
-            telemetry.addData("topright", topright.getCurrentPosition());
-            telemetry.addData("topleft", topleft.getCurrentPosition());
-            telemetry.addData("bottomright", bottomright.getCurrentPosition());
-            telemetry.addData("bottomleft", bottomleft.getCurrentPosition());
-
-            telemetry.update();
+            if(gamepad1.y){
+                intake.setPower(-0.1);
+                sleep(1000);
+                intake.setPower(0);
+            }
+//            telemetry.addData("intake", intake.getCurrentPosition());
+//            telemetry.addData("rotation", rotation);
+//            telemetry.addData("remaining", remaining);
+//            telemetry.update();
+//
+//            rotation = intake.getCurrentPosition() / 112;
+//            remaining = intake.getCurrentPosition() % 112;
+//
+//            if(gamepad1.x){
+//                intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//                intake.setPower(0.5);
+//            } else
+//            if(remaining > 5){
+//                rotation++;
+//                intake.setTargetPosition(112 * rotation);
+//                intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                intake.setPower(0.5);
+//                while(intake.isBusy()){
+//                    idle();
+//                }
+//                intake.setPower(0);
+//            }
         }
+
+
+//        topleft.setTargetPosition(1000);
+//        topright.setTargetPosition(-1000);
+//        bottomleft.setTargetPosition(-1000);
+//        bottomright.setTargetPosition(1000);
+//
+//        topleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        topright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        bottomleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        bottomright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+//        topleft.setPower(0.3);
+//        topright.setPower(-0.3);
+//        bottomleft.setPower(-0.3);
+//        bottomright.setPower(0.3);
+//
+//        while (topleft.isBusy() && topright.isBusy() &&
+//                bottomleft.isBusy() && bottomright.isBusy()) {
+//            telemetry.addData("topright", topright.getCurrentPosition());
+//            telemetry.addData("topleft", topleft.getCurrentPosition());
+//            telemetry.addData("bottomright", bottomright.getCurrentPosition());
+//            telemetry.addData("bottomleft", bottomleft.getCurrentPosition());
+//
+//            telemetry.update();
+//        }
+//
+//        sleep(2000);
+//
+//        topleft.setPower(0);
+//        topright.setPower(0);
+//        bottomleft.setPower(0);
+//        bottomright.setPower(0);
+
+//        while(opModeIsActive()){
+//            bottomright.setPower
+//                    (0.5 * (gamepad1.left_stick_x + (gamepad1.right_stick_x - gamepad1.right_stick_y)));
+//            topright.setPower
+//                    (0.5 * (gamepad1.left_stick_x + (-gamepad1.right_stick_x - gamepad1.right_stick_y)));
+//            bottomleft.setPower
+//                    (0.5 * (-gamepad1.left_stick_x + (-gamepad1.right_stick_x - gamepad1.right_stick_y)));
+//            topleft.setPower
+//                    (0.5 * (-gamepad1.left_stick_x + (gamepad1.right_stick_x - gamepad1.right_stick_y)));
+//
+//            telemetry.addData("topright", topright.getCurrentPosition());
+//            telemetry.addData("topleft", topleft.getCurrentPosition());
+//            telemetry.addData("bottomright", bottomright.getCurrentPosition());
+//            telemetry.addData("bottomleft", bottomleft.getCurrentPosition());
+//
+//            telemetry.update();
+//
+//        }
 
 //        while (opModeIsActive()) {
 //            telemetry.addData("distance", distancesensor.getDistance(DistanceUnit.CM));
