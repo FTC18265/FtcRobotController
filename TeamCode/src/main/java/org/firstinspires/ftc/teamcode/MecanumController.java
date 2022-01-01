@@ -4,12 +4,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class MecanumController {
-    private DcMotor topright;
-    private DcMotor topleft;
-    private DcMotor bottomright;
-    private DcMotor bottomleft;
+    DcMotor topright;
+    DcMotor topleft;
+    DcMotor bottomright;
+    DcMotor bottomleft;
 
-    public void MecanumController(DcMotor topleft, DcMotor topright, DcMotor bottomleft, DcMotor bottomright){
+    public MecanumController(DcMotor topleft, DcMotor topright, DcMotor bottomleft, DcMotor bottomright){
         this.topleft = topleft;
         this.topright = topright;
         this.bottomleft = bottomleft;
@@ -43,5 +43,41 @@ public class MecanumController {
         bottomleft.setPower(0);
         topright.setPower(0);
         bottomright.setPower(0);
+    }
+
+    public void forward(double power){
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        topleft.setPower(power);
+        topright.setPower(power);
+        bottomright.setPower(power);
+        bottomleft.setPower(power);
+    }
+
+    public void backward(double power){
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        topleft.setPower(-power);
+        topright.setPower(-power);
+        bottomright.setPower(-power);
+        bottomleft.setPower(-power);
+    }
+
+    public void left(double power){
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        topleft.setPower(power);
+        topright.setPower(-power);
+        bottomright.setPower(power);
+        bottomleft.setPower(-power);
+    }
+
+    public void right(double power){
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        topleft.setPower(-power);
+        topright.setPower(power);
+        bottomright.setPower(-power);
+        bottomleft.setPower(power);
     }
 }

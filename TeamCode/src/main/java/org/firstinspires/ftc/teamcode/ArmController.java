@@ -76,10 +76,10 @@ public class ArmController {
             arm.setTargetPosition(-280);
         }
         if (level == 2){
-            arm.setTargetPosition(-800);
+            arm.setTargetPosition(-750);
         }
         if (level == 3){
-            arm.setTargetPosition(-1600);
+            arm.setTargetPosition(-1500);
         }
     }
 

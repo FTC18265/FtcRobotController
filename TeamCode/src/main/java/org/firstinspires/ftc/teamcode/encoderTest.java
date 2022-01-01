@@ -25,6 +25,7 @@ public class encoderTest extends LinearOpMode {
     private Servo door;
     private DcMotor carousel;
     private Rev2mDistanceSensor distancesensor;
+    private ColorSensor colorsensor;
 
     private AnalogInput potentiometer;
 
@@ -56,6 +57,7 @@ public class encoderTest extends LinearOpMode {
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
         door = hardwareMap.get(Servo.class, "door");
         distancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "distancesensor");
+        colorsensor = hardwareMap.get(ColorSensor.class, "colorsensor");
 
         telemetry.update();
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -93,41 +95,14 @@ public class encoderTest extends LinearOpMode {
 
         waitForStart();
 
-        while(opModeIsActive()){
-            if(gamepad1.x){
-                intake.setPower(0.5);
-            }
-            intake.setPower(0);
-
-            if(gamepad1.y){
-                intake.setPower(-0.1);
-                sleep(1000);
-                intake.setPower(0);
-            }
-//            telemetry.addData("intake", intake.getCurrentPosition());
-//            telemetry.addData("rotation", rotation);
-//            telemetry.addData("remaining", remaining);
+//        while(opModeIsActive()){
+//            telemetry.addData("distance sensor", distancesensor.getDistance(DistanceUnit.CM));
 //            telemetry.update();
-//
-//            rotation = intake.getCurrentPosition() / 112;
-//            remaining = intake.getCurrentPosition() % 112;
-//
-//            if(gamepad1.x){
-//                intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//                intake.setPower(0.5);
-//            } else
-//            if(remaining > 5){
-//                rotation++;
-//                intake.setTargetPosition(112 * rotation);
-//                intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                intake.setPower(0.5);
-//                while(intake.isBusy()){
-//                    idle();
-//                }
-//                intake.setPower(0);
-//            }
-        }
-
+//        }
+while(opModeIsActive()) {
+    telemetry.addData("colorsensor", colorsensor.red());
+    telemetry.update();
+}
 
 //        topleft.setTargetPosition(1000);
 //        topright.setTargetPosition(-1000);
@@ -177,14 +152,10 @@ public class encoderTest extends LinearOpMode {
 //            telemetry.addData("bottomleft", bottomleft.getCurrentPosition());
 //
 //            telemetry.update();
-//
+
 //        }
 
-//        while (opModeIsActive()) {
-//            telemetry.addData("distance", distancesensor.getDistance(DistanceUnit.CM));
-//            telemetry.addData("arm", arm.getCurrentPosition());
-//            telemetry.addData("susan", susan.getCurrentPosition());
-//
+
 //
 //            telemetry.update();
 ///*

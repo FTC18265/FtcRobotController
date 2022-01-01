@@ -94,10 +94,10 @@ public class SusanController {
             susan.setTargetPosition(0);
         }
         if (degree == 0){
-            susan.setTargetPosition(-750);
+            susan.setTargetPosition(-700);
         }
         if (degree == -1){
-            susan.setTargetPosition(-1500);
+            susan.setTargetPosition(-1400);
         }
     }
 

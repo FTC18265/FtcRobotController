@@ -54,7 +54,6 @@ public class freightFrenzyDriver extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
         topright = hardwareMap.get(DcMotor.class, "topright");
         topleft = hardwareMap.get(DcMotor.class, "topleft");
         bottomright = hardwareMap.get(DcMotor.class, "bottomright");
@@ -68,14 +67,14 @@ public class freightFrenzyDriver extends LinearOpMode {
         extradistancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "extradistancesensor");
         distancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "distancesensor");
 
+        MecanumController mecanumController = new MecanumController(topleft, topright, bottomleft, bottomright);
+        mecanumController.init();
+
         ArmController armController = new ArmController(arm);
         armController.init();
 
         SusanController susanController = new SusanController(susan);
         susanController.init();
-
-        bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
-        bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -103,27 +102,21 @@ public class freightFrenzyDriver extends LinearOpMode {
 
         while (opModeIsActive()) {
             //drive train
-            topright.setPower
-                    (0.5 * (-gamepad1.left_stick_x + (gamepad1.right_stick_x + gamepad1.right_stick_y)));
             bottomright.setPower
-                    (0.5 * (gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
-            topleft.setPower
-                    (0.5 * (-gamepad1.left_stick_x + gamepad1.right_stick_x - gamepad1.right_stick_y));
+                    (0.5 * (gamepad1.left_stick_x + (gamepad1.right_stick_x - gamepad1.right_stick_y)));
+            topright.setPower
+                    (0.5 * (gamepad1.left_stick_x + (-gamepad1.right_stick_x - gamepad1.right_stick_y)));
             bottomleft.setPower
-                    (0.5 * (gamepad1.left_stick_x + (gamepad1.right_stick_x + gamepad1.right_stick_y)));
+                    (0.5 * (-gamepad1.left_stick_x + (-gamepad1.right_stick_x - gamepad1.right_stick_y)));
+            topleft.setPower
+                    (0.5 * (-gamepad1.left_stick_x + (gamepad1.right_stick_x - gamepad1.right_stick_y)));
+
+            telemetry.addData("topright", topright.getCurrentPosition());
+            telemetry.addData("topleft", topleft.getCurrentPosition());
+            telemetry.addData("bottomright", bottomright.getCurrentPosition());
+            telemetry.addData("bottomleft", bottomleft.getCurrentPosition());
 
             telemetry.update();
-
-//            topright.setPower
-//                  (0.5 * (gamepad1.left_stick_x + gamepad1.right_stick_x + gamepad1.right_stick_y));
-//            bottomright.setPower
-//                  (0.5 * (-gamepad1.left_stick_x + (gamepad1.right_stick_x - gamepad1.right_stick_y)));
-//            topleft.setPower
-//                  (0.5 * (gamepad1.left_stick_x + (gamepad1.right_stick_x - gamepad1.right_stick_y)));
-//            bottomleft.setPower
-//                  (0.5 * (-gamepad1.left_stick_x + gamepad1.right_stick_x + gamepad1.right_stick_y));
-//            telemetry.update();
-
 
             //carousel
             if (gamepad1.b){
@@ -182,10 +175,10 @@ public class freightFrenzyDriver extends LinearOpMode {
                 //secure freight
                 secureFreight = true;
                 secureFreightStartTime = currenttime;
-                intake.setPower(-0.075);
+                intake.setPower(-0.1);
             }
 
-            if(secureFreight == true && currenttime - secureFreightStartTime > 1){
+            if(secureFreight == true && currenttime - secureFreightStartTime > 0.5){
                 intake.setPower(0);
                 secureFreight = false;
             }
@@ -248,7 +241,7 @@ public class freightFrenzyDriver extends LinearOpMode {
                 door.setPosition(1);
 
                 releaseFreight = true;
-                intake.setPower(0.075);
+                intake.setPower(0.1);
                 releaseFreightStartTime = currenttime;
             }
             else{

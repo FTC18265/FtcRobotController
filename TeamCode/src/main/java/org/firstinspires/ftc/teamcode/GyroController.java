@@ -13,10 +13,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
 public class GyroController extends MecanumController{
-    private DcMotor topright;
-    private DcMotor topleft;
-    private DcMotor bottomright;
-    private DcMotor bottomleft;
     BNO055IMU imu;
 
     static final double     COUNTS_PER_MOTOR_REV    = 28;
@@ -25,42 +21,39 @@ public class GyroController extends MecanumController{
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415) * 0.9;
 
-    static final double     DRIVE_SPEED             = 0.7;     // Nominal speed for better accuracy.
-    static final double     TURN_SPEED              = 0.5;     // Nominal half speed for better accuracy.
-
-    static final double     HEADING_THRESHOLD       = 1 ;      // As tight as we can make it with an integer gyro
+    static final double     HEADING_THRESHOLD       = 3 ;      // As tight as we can make it with an integer gyro
     static final double     P_TURN_COEFF            = 0.07;     // Larger is more responsive, but also less stable
     static final double     P_DRIVE_COEFF           = -0.07;     // Larger is more responsive, but also less stable
-    static final double     P_HORIZONTAL_COEFF      = -0.01;     // Larger is more responsive, but also less stable
 
 
-
-    public void GyroController(DcMotor topleft, DcMotor topright, DcMotor bottomleft, DcMotor bottomright, BNO055IMU imu){
-        this.topleft = topleft;
-        this.topright = topright;
-        this.bottomleft = bottomleft;
-        this.bottomright = bottomright;
+    public GyroController (DcMotor topleft, DcMotor topright, DcMotor bottomleft, DcMotor bottomright, BNO055IMU imu){
+        super(topleft,topright,bottomleft,bottomright);
         this.imu = imu;
     }
 
+    public void init(){
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.mode                = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
+
+        topleft.setDirection(DcMotorSimple.Direction.FORWARD);
+        topright.setDirection(DcMotorSimple.Direction.REVERSE);
+        bottomleft.setDirection(DcMotorSimple.Direction.FORWARD);
+        bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        imu.initialize(parameters);
+    }
+
     public void gyroTurn (  double speed, double angle) {
-
         // keep looping while we are still active, and not on heading.
-        topleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        topright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bottomleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bottomright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        topleft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        topright.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        bottomleft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        bottomright.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         while (!onHeading(speed, angle, P_TURN_COEFF)) {
-            // Update telemetry & Allow time for other processes to run.
-            telemetry.addData("heading", getAngle());
-            telemetry.update();
-
 
         }
     }
@@ -68,7 +61,6 @@ public class GyroController extends MecanumController{
     public void gyroDrive ( double speed,
                             double distance,
                             double angle) {
-
         int newTopRightTarget;
         int newBottomRightTarget;
         int newTopleftTarget;
@@ -94,23 +86,15 @@ public class GyroController extends MecanumController{
         topright.setTargetPosition(newTopRightTarget);
         bottomleft.setTargetPosition(newBottomLeftTarget);
         bottomright.setTargetPosition(newBottomRightTarget);
-
-        topleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        topright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        bottomleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        bottomright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // start motion.
         speed = Range.clip(Math.abs(speed), 0.0, 1);
-        topleft.setPower(speed);
-        topright.setPower(speed);
-        bottomleft.setPower(speed);
-        bottomright.setPower(speed);
+        setPower(speed);
 
         // keep looping while we are still active, and BOTH motors are running.
         while (topleft.isBusy() && topright.isBusy() &&
                 bottomleft.isBusy() && bottomright.isBusy()) {
-
             // adjust relative speed based on heading error.
             error = getError(angle);
             steer = getSteer(error, P_DRIVE_COEFF);
@@ -118,7 +102,6 @@ public class GyroController extends MecanumController{
             // if driving in reverse, the motor correction also needs to be reversed
             if (distance < 0)
                 steer *= -1.0;
-
             topLeftSpeed = speed - steer;
             topRightSpeed = speed + steer;
             bottomLeftSpeed = speed - steer;
@@ -126,14 +109,12 @@ public class GyroController extends MecanumController{
 
             // Normalize speeds if either one exceeds +/- 1.0;
             max = Math.max(Math.abs(topLeftSpeed), Math.abs(topRightSpeed));
-            if (max > 1.0)
-            {
+            if (max > 1.0) {
                 topLeftSpeed /= max;
                 topRightSpeed /= max;
             }
             max = Math.max(Math.abs(bottomLeftSpeed), Math.abs(bottomRightSpeed));
-            if (max > 1.0)
-            {
+            if (max > 1.0) {
                 bottomLeftSpeed /= max;
                 bottomRightSpeed /= max;
             }
@@ -143,168 +124,13 @@ public class GyroController extends MecanumController{
             bottomleft.setPower(bottomLeftSpeed);
             bottomright.setPower(bottomRightSpeed);
 
-            // Display drive status for the driver.
-            telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
-            telemetry.addData("Target",  "%7d:%7d",      newTopleftTarget,  newTopRightTarget,
-                    newBottomLeftTarget, newBottomRightTarget);
-            telemetry.addData("Actual",  "%7d:%7d",      topleft.getCurrentPosition(),
-                    topright.getCurrentPosition(), bottomleft.getCurrentPosition(),
-                    bottomright.getCurrentPosition());
-            telemetry.addData("Speed",   "%5.2f:%5.2f",  topLeftSpeed, topRightSpeed,
-                    bottomLeftSpeed, bottomRightSpeed);
-            telemetry.update();
         }
-
         // Stop all motion;
         stopAllMotors();
 
         // Turn off RUN_TO_POSITION
-        topleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        topright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        bottomleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        bottomright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-    }
-
-    public void gyroHorizontal( double speed,
-                                double distance,
-                                double angle) {
-        int newTopRightTarget;
-        int newBottomRightTarget;
-        int newTopleftTarget;
-        int newBottomLeftTarget;
-        double  max;
-        double  error;
-        double  steer;
-        double  topLeftSpeed;
-        double  topRightSpeed;
-        double  bottomLeftSpeed;
-        double  bottomRightSpeed;
-        int moveCounts;
-        moveCounts = (int) (distance * COUNTS_PER_INCH * 1.4);
-
-        if (distance > 0) {
-            topleft.setDirection(DcMotorSimple.Direction.FORWARD);
-            topright.setDirection(DcMotorSimple.Direction.FORWARD);
-            bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
-            bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
-//            topright.setDirection(DcMotorSimple.Direction.REVERSE);
-//            bottomleft.setDirection(DcMotorSimple.Direction.REVERSE);
-        } else if (distance < 0) {
-            topleft.setDirection(DcMotorSimple.Direction.REVERSE);
-            topright.setDirection(DcMotorSimple.Direction.REVERSE);
-            bottomleft.setDirection(DcMotorSimple.Direction.FORWARD);
-            bottomright.setDirection(DcMotorSimple.Direction.FORWARD);
-//            topleft.setDirection(DcMotorSimple.Direction.REVERSE);
-//            bottomright.setDirection(DcMotorSimple.Direction.REVERSE);
-        }
-
-//        topleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        topright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        bottomleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        bottomright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-//        if (distance > 0) {
-//            newTopleftTarget = (topleft.getCurrentPosition() + moveCounts) * 0.8;
-//            newTopRightTarget = (topright.getCurrentPosition() + moveCounts) * 1;
-//            newBottomLeftTarget = (bottomleft.getCurrentPosition() + moveCounts) * 0.8;
-//            newBottomRightTarget = (bottomright.getCurrentPosition() + moveCounts) * 1;
-//        } else {
-//            newTopleftTarget = (topleft.getCurrentPosition() + moveCounts) * 1;
-//            newTopRightTarget = (topright.getCurrentPosition() + moveCounts) * 0.8;
-//            newBottomLeftTarget = (bottomleft.getCurrentPosition() + moveCounts) * 1;
-//            newBottomRightTarget = (bottomright.getCurrentPosition() + moveCounts) * 0.8;
-//        }
-
-
-        newTopleftTarget = (topleft.getCurrentPosition() + moveCounts);
-        newTopRightTarget = (topright.getCurrentPosition() + moveCounts);
-        newBottomLeftTarget = (bottomleft.getCurrentPosition() + moveCounts);
-        newBottomRightTarget = (bottomright.getCurrentPosition() + moveCounts);
-
-        topleft.setTargetPosition((int) newTopleftTarget);
-        topright.setTargetPosition((int) newTopRightTarget);
-        bottomleft.setTargetPosition((int) newBottomLeftTarget);
-        bottomright.setTargetPosition((int) newBottomRightTarget);
-
-        topleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        topright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        bottomleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        bottomright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        speed = Range.clip(Math.abs(speed), 0.0, 1.0);
-        topleft.setPower(speed);
-        topright.setPower(speed);
-        bottomleft.setPower(speed);
-        bottomright.setPower(speed);
-
-        while (topleft.isBusy() && topright.isBusy() &&
-                bottomleft.isBusy() && bottomright.isBusy()) {
-
-            // adjust relative speed based on heading error.
-            error = getError(angle);
-            steer = getSteer(error, P_HORIZONTAL_COEFF);
-
-            // if driving in reverse, the motor correction also needs to be reversed
-//            if (distance > 0) {
-//                topLeftSpeed = speed - steer;
-//                topRightSpeed = speed - steer;
-//                bottomLeftSpeed = speed + steer;
-//                bottomRightSpeed = speed + steer;
-//            } else {
-//                topLeftSpeed = speed + steer;
-//                topRightSpeed = speed + steer;
-//                bottomLeftSpeed = speed - steer;
-//                bottomRightSpeed = speed - steer;
-//            }
-            if (distance < 0)
-                steer *= -1.0;
-
-            topLeftSpeed = speed + steer;
-            topRightSpeed = speed - steer;
-            bottomLeftSpeed = speed + steer;
-            bottomRightSpeed = speed - steer;
-
-            // Normalize speeds if either one exceeds +/- 1.0;
-            max = Math.max(Math.abs(topLeftSpeed), Math.abs(topRightSpeed));
-            if (max > 1.0)
-            {
-                topLeftSpeed /= max;
-                topRightSpeed /= max;
-            }
-            max = Math.max(Math.abs(bottomLeftSpeed), Math.abs(bottomRightSpeed));
-            if (max > 1.0)
-            {
-                bottomLeftSpeed /= max;
-                bottomRightSpeed /= max;
-            }
-
-            topleft.setPower(topLeftSpeed);
-            topright.setPower(topRightSpeed);
-            bottomleft.setPower(bottomLeftSpeed);
-            bottomright.setPower(bottomRightSpeed);
-
-            // Display drive status for the driver.
-            telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
-            telemetry.addData("Target",  "%7d:%7d",      newTopleftTarget,  newTopRightTarget,
-                    newBottomLeftTarget, newBottomRightTarget);
-            telemetry.addData("Actual",  "%7d:%7d",      topleft.getCurrentPosition(),
-                    topright.getCurrentPosition(), bottomleft.getCurrentPosition(),
-                    bottomright.getCurrentPosition());
-            telemetry.addData("Speed",   "%5.2f:%5.2f",  topLeftSpeed, topRightSpeed,
-                    bottomLeftSpeed, bottomRightSpeed);
-            telemetry.update();
-        }
-
-        stopAllMotors();
-
-        topleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        topright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        bottomleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        bottomright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        telemetry.addData("targetposition", newBottomLeftTarget);
-        telemetry.update();
     }
 
     boolean onHeading(double speed, double angle, double PCoeff) {
@@ -316,7 +142,6 @@ public class GyroController extends MecanumController{
 
         // determine turn power based on +/- error
         error = getError(angle);
-
         if (Math.abs(error) <= HEADING_THRESHOLD) {
             steer = 0.0;
             leftSpeed  = 0.0;
@@ -330,22 +155,18 @@ public class GyroController extends MecanumController{
         }
 
         // Send desired speeds to motors.
+        leftSpeed = deadZone(leftSpeed);
+        rightSpeed = deadZone(rightSpeed);
 
         topleft.setPower(leftSpeed);
         topright.setPower(rightSpeed);
         bottomleft.setPower(leftSpeed);
         bottomright.setPower(rightSpeed);
 
-        // Display it for the driver.
-        telemetry.addData("Target", "%5.2f", angle);
-        telemetry.addData("Err/St", "%5.2f/%5.2f", error, steer);
-        telemetry.addData("Speed.", "%5.2f:%5.2f", leftSpeed, rightSpeed);
-
         return onTarget;
     }
 
     public double getError(double targetAngle) {
-
         double robotError;
         double heading;
 
@@ -372,6 +193,17 @@ public class GyroController extends MecanumController{
         Orientation angles;
         angles  = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         return angles.firstAngle;
+    }
+
+    private double deadZone(double speed){
+        final double MIN_SPEED = 0.2;
+        if(speed > 0 && speed < MIN_SPEED){
+            speed = MIN_SPEED;
+        }
+        if(speed < 0 && speed > -MIN_SPEED){
+            speed = -MIN_SPEED;
+        }
+        return speed;
     }
 
 }

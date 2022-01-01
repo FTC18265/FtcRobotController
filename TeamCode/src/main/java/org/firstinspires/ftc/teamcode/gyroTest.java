@@ -42,7 +42,7 @@ public class gyroTest extends LinearOpMode {
 
     @Override
     public void runOpMode(){
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
         topright = hardwareMap.get(DcMotor.class, "topright");
         bottomright = hardwareMap.get(DcMotor.class, "bottomright");
         topleft = hardwareMap.get(DcMotor.class, "topleft");
@@ -60,17 +60,18 @@ public class gyroTest extends LinearOpMode {
         bottomleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         bottomright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.mode                = BNO055IMU.SensorMode.IMU;
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled      = false;
 
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
         waitForStart();
 
         gyroTurn(0.3, 45);
+        gyroDrive(0.3, 5, 0);
 
     }
 
@@ -310,6 +311,7 @@ public class gyroTest extends LinearOpMode {
                 bottomRightSpeed /= max;
             }
 
+
             topleft.setPower(topLeftSpeed);
             topright.setPower(topRightSpeed);
             bottomleft.setPower(bottomLeftSpeed);
@@ -367,6 +369,9 @@ public class gyroTest extends LinearOpMode {
             rightSpeed   = -leftSpeed;
         }
 
+        leftSpeed = deadZone(leftSpeed);
+        rightSpeed = deadZone(rightSpeed);
+
         // Send desired speeds to motors.
 
         topleft.setPower(leftSpeed);
@@ -410,5 +415,16 @@ public class gyroTest extends LinearOpMode {
         Orientation angles;
         angles  = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         return angles.firstAngle;
+    }
+
+    private double deadZone(double speed){
+        final double MIN_SPEED = 0.2;
+        if(speed > 0 && speed < MIN_SPEED){
+            speed = MIN_SPEED;
+        }
+        if(speed < 0 && speed > -MIN_SPEED){
+            speed = -MIN_SPEED;
+        }
+        return speed;
     }
 }
