@@ -18,9 +18,11 @@ public class SusanController {
     public static final double turning_NEW_F = 0;
     private int degree = 1;
     public int position;
+    public String alliance;
 
-    public SusanController (DcMotorEx susan){
+    public SusanController (DcMotorEx susan, String side){
         this.susan = susan;
+        alliance = side;
     }
 
     public void init (){
@@ -46,13 +48,30 @@ public class SusanController {
     public void adjustLevel(int offset){
         degree = degree + offset;
 
-        if (degree < -1){
-            degree = -1;
-        }
-        if (degree > 1){
-            degree = 1;
+        if(alliance == "red"){
+            if (degree < -1){
+                degree = -1;
+            }
+            if (degree > 1){
+                degree = 1;
+            }
+
+            setDegreeRed();
         }
 
+        if(alliance == "blue"){
+            if (degree < 1){
+                degree = 1;
+            }
+            if (degree > 3){
+                degree = 3;
+            }
+
+            setDegreeBlue();
+        }
+    }
+
+    public void setDegreeRed(){
         if (degree == 1){
             susan.setPower(0.5);
             susan.setTargetPosition(0);
@@ -71,6 +90,25 @@ public class SusanController {
         }
     }
 
+    public void setDegreeBlue(){
+        if (degree == 1){
+            susan.setPower(0.5);
+            susan.setTargetPosition(0);
+
+        }
+        else if (degree == 3){
+            susan.setPower(0.5);
+            susan.setTargetPosition(1500);
+
+        }
+
+        else if (degree == 2){
+            susan.setPower(0.5);
+            susan.setTargetPosition(750);
+
+        }
+    }
+
     public int getCurrentPosition(){
         return susan.getCurrentPosition();
     }
@@ -78,13 +116,23 @@ public class SusanController {
     public void microAjust(int offset){
         position = susan.getCurrentPosition();
         position = position + offset;
+        if(alliance == "red"){
+            if (position > 0){
+                position = 0;
+            }
+            if (position < -1500){
+                position = -1500;
+            }
+        }
+        if(alliance == "blue"){
+            if (position < 0){
+                position = 0;
+            }
+            if (position > 1500){
+                position = 1500;
+            }
+        }
 
-        if (position > 0){
-            position = 0;
-        }
-        if (position < -1500){
-            position = -1500;
-        }
 
         susan.setTargetPosition(position);
     }
@@ -94,7 +142,7 @@ public class SusanController {
             susan.setTargetPosition(0);
         }
         if (degree == 0){
-            susan.setTargetPosition(-700);
+            susan.setTargetPosition(-750);
         }
         if (degree == -1){
             susan.setTargetPosition(-1400);

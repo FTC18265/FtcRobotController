@@ -101,6 +101,7 @@ public class encoderTest extends LinearOpMode {
 //        }
 while(opModeIsActive()) {
     telemetry.addData("colorsensor", colorsensor.red());
+    telemetry.addData("trigger", gamepad1.left_trigger);
     telemetry.update();
 }
 

@@ -73,7 +73,7 @@ public class freightFrenzyDriver extends LinearOpMode {
         ArmController armController = new ArmController(arm);
         armController.init();
 
-        SusanController susanController = new SusanController(susan);
+        SusanController susanController = new SusanController(susan, "red");
         susanController.init();
 
         intake.setDirection(DcMotorSimple.Direction.REVERSE);

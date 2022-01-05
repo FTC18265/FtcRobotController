@@ -4,7 +4,6 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,28 +11,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.ArmController;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-import java.nio.file.WatchEvent;
-import java.util.List;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
-@Autonomous(name = "Basic Auto")
-public class BasicAutonomousFreightFrenzy extends LinearOpMode {
+@Autonomous (group = "blue", name = "Blue Auto")
+public class freightAutoBlue extends LinearOpMode {
     private DcMotor topright;
     private DcMotor topleft;
     private DcMotor bottomright;
@@ -46,6 +31,8 @@ public class BasicAutonomousFreightFrenzy extends LinearOpMode {
     private Rev2mDistanceSensor extradistancesensor;
     private Rev2mDistanceSensor distancesensor;
     private AnalogInput potentiometer;
+    private VuforiaLocalizer vuforia;
+    private TFObjectDetector tfod;
     private BNO055IMU imu;
     private ColorSensor colorsensor;
 
@@ -88,7 +75,7 @@ public class BasicAutonomousFreightFrenzy extends LinearOpMode {
         ArmController armController = new ArmController(arm);
         armController.init();
 
-        SusanController susanController = new SusanController(susan, "blue");
+        SusanController susanController = new SusanController(susan, "red");
         susanController.init();
 
         carousel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -98,8 +85,6 @@ public class BasicAutonomousFreightFrenzy extends LinearOpMode {
         // re-read coefficients and verify change.
         PIDFCoefficients pidModified = arm.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         PIDFCoefficients turningPidModified = susan.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        int position = 0;
 
         door.setPosition(0);
         carousel.setPower(0);
@@ -115,7 +100,7 @@ public class BasicAutonomousFreightFrenzy extends LinearOpMode {
         //start program
         //arm position
         armController.autoLevel(3);
-        sleep(1000);
+//        sleep(1000);
         while(opModeIsActive() && arm.isBusy()){
             telemetry.addData("arm", armController.getCurrentPosition());
             telemetry.update();
@@ -125,7 +110,7 @@ public class BasicAutonomousFreightFrenzy extends LinearOpMode {
         sleep(3000);
 
         //move forward
-        while (opModeIsActive() && (distancesensor.getDistance(DistanceUnit.CM)) < 45.5){
+        while (opModeIsActive() && (distancesensor.getDistance(DistanceUnit.CM)) < 43){
             gyroController.forward(0.3);
         }
         gyroController.stopAllMotors();
@@ -134,15 +119,16 @@ public class BasicAutonomousFreightFrenzy extends LinearOpMode {
         door.setPosition(1);
         sleep(750);
         intake.setPower(0.1);
-        sleep(1000);
+        sleep(500);
         intake.setPower(0);
 
         susanController.autoLevel(-1);
+        sleep(1000);
         door.setPosition(0);
-        sleep(500);
+//        sleep(500);
 
         //move to carousel
-        gyroController.gyroTurn(0.3, 90);
+        gyroController.gyroTurn(0.5, 90);
         gyroController.gyroDrive(0.5, -30, 90);
 
         while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 50){
@@ -150,38 +136,41 @@ public class BasicAutonomousFreightFrenzy extends LinearOpMode {
             gyroController.backward(0.1);
         }
         gyroController.stopAllMotors();
-        gyroController.gyroTurn(0.3, 45);
+        gyroController.gyroTurn(0.5, 45);
         gyroController.backward(0.3);
-        sleep(1500);
+        sleep(1000);
         gyroController.backward(0.1);
         sleep(1000);
 
         //turn carousel
-        topleft.setPower(0);
-        topright.setPower(0.25);
-        bottomright.setPower(-0.25);
-        bottomleft.setPower(0);
+        topleft.setPower(-0.1);
+        topright.setPower(-0.1);
+        bottomright.setPower(-0.1);
+        bottomleft.setPower(-0.1);
 
         carousel.setPower(-0.5);
-        sleep(3000);
+        sleep(2500);
         carousel.setPower(0);
 
         //park in storage unit
-        gyroController.gyroTurn(0.3, 0);
+        gyroController.gyroTurn(0.3, -7);
         gyroController.forward(0.25);
         //line detection
         telemetry.addLine("start telemetry");
         telemetry.update();
-        while(colorsensor.red() < 2000 && colorsensor.red() > 800){
-            telemetry.addData("colorsensor", colorsensor.red());
+        while(opModeIsActive() && colorsensor.blue() < 2000 ){
+            telemetry.addData("colorsensor", colorsensor.blue());
             telemetry.update();
         }
+
         gyroController.stopAllMotors();
 
         armController.autoLevel(1);
 
         telemetry.addLine("finished");
         telemetry.update();
+
+        sleep(5000);
     }
 
 /////////////////methods
@@ -193,5 +182,4 @@ public class BasicAutonomousFreightFrenzy extends LinearOpMode {
 
         telemetry.update();
     }
-
 }

@@ -107,7 +107,7 @@ public class freightFrenzyAuto extends LinearOpMode {
         ArmController armController = new ArmController(arm);
         armController.init();
 
-        SusanController susanController = new SusanController(susan);
+        SusanController susanController = new SusanController(susan, "red");
         susanController.init();
 
         carousel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

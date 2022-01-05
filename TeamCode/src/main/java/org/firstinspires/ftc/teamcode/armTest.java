@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+
 @TeleOp(name = "armTest")
 public class armTest extends LinearOpMode {
     private DcMotorEx arm;
@@ -35,7 +36,7 @@ public class armTest extends LinearOpMode {
         ArmController armController = new ArmController(arm);
         armController.init();
 
-        SusanController susanController = new SusanController(susan);
+        SusanController susanController = new SusanController(susan, "red");
         susanController.init();
 
         arm.setPower(0.5);
