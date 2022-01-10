@@ -39,7 +39,7 @@ public class FreightDriverBlue extends LinearOpMode {
     public static final double turning_NEW_D = 0.0;
     public static final double turning_NEW_F = 17;
 
-    DriverWrap driverWrap = new DriverWrap();
+    DriverWrap driverWrap = new DriverWrap("blue");
 
     @Override
     public void runOpMode(){

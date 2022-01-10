@@ -50,7 +50,7 @@ public class ArmController {
         }
         else if (level == 2){
             arm.setPower(0.5);
-            arm.setTargetPosition(-1600);
+            arm.setTargetPosition(-1500);
         }
 
         else if (level == 0){

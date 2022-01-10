@@ -88,7 +88,7 @@ public class freightAutoRed extends LinearOpMode {
 
         int position = 0;
 
-        door.setPosition(0);
+        door.setPosition(0.5);
         carousel.setPower(0);
         arm.setPower(0.5);
         susan.setPower(0.5);
@@ -112,7 +112,7 @@ public class freightAutoRed extends LinearOpMode {
         sleep(3000);
 
         //move forward
-        while (opModeIsActive() && (distancesensor.getDistance(DistanceUnit.CM)) < 43){
+        while (opModeIsActive() && (distancesensor.getDistance(DistanceUnit.CM)) < 45){
             gyroController.forward(0.3);
         }
         gyroController.stopAllMotors();
@@ -126,13 +126,14 @@ public class freightAutoRed extends LinearOpMode {
 
         susanController.autoLevel(1);
         sleep(1000);
-        door.setPosition(0);
+        door.setPosition(0.5);
 //        sleep(500);
 
         //move to carousel
         gyroController.gyroTurn(0.5, -90);
         gyroController.gyroDrive(0.5, -37, -90);
 
+        
         while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 50){
             telemetry.addData("distance sensor", distancesensor.getDistance(DistanceUnit.CM));
             gyroController.backward(0.1);

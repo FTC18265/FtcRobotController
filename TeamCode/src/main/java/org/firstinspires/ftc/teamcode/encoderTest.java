@@ -91,6 +91,7 @@ public class encoderTest extends LinearOpMode {
 
         int rotation = 0;
         int remaining = 0;
+        double position = 0;
 
 
         waitForStart();
@@ -100,8 +101,18 @@ public class encoderTest extends LinearOpMode {
 //            telemetry.update();
 //        }
 while(opModeIsActive()) {
-    telemetry.addData("colorsensor", colorsensor.red());
-    telemetry.addData("trigger", gamepad1.left_trigger);
+    //center 0.2
+    //left 0.5
+    //right 0
+    if(gamepad1.x){
+        position = position + 0.1;
+    }
+    if(gamepad1.b){
+        position = position - 0.1;
+    }
+
+    door.setPosition(position);
+    telemetry.addData("servo", door.getPosition());
     telemetry.update();
 }
 

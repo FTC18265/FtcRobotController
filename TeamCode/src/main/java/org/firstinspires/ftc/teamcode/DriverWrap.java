@@ -37,6 +37,7 @@ public class DriverWrap {
     private boolean releaseFreight = false;
     private double releaseFreightStartTime = 0;
     private double slowValue = 1;
+    private String alliance;
 
     private String button;
     //var
@@ -49,6 +50,11 @@ public class DriverWrap {
     public static final double turning_NEW_I = 0.5;
     public static final double turning_NEW_D = 0.0;
     public static final double turning_NEW_F = 17;
+
+    public DriverWrap (String side){
+        alliance = side;
+    }
+
 
     public void init(HardwareMap hardwareMap, String alliance){
         topright = hardwareMap.get(DcMotor.class, "topright");
@@ -138,12 +144,12 @@ public class DriverWrap {
             }
 
  */
-        if(gamepad2.a && currenttime - lasttime > 1){
+        if(gamepad2.a && currenttime - lasttime > 0.5){
             button = "gamepad2.a";
             lasttime = currenttime;
             armController.adjustLevel(-1);
         }
-        if(gamepad2.y && currenttime - lasttime > 1){
+        if(gamepad2.y && currenttime - lasttime > 0.5){
             lasttime = currenttime;
             button = "gamepad2.y";
             armController.adjustLevel(1);
@@ -171,12 +177,12 @@ public class DriverWrap {
             lasttime = currenttime;
         }
 
-        if(gamepad2.x && currenttime - lasttime > 1){
+        if(gamepad2.x && currenttime - lasttime > 0.5){
             button = "gamepad2.x";
             lasttime = currenttime;
             susanController.adjustLevel(-1);
         }
-        if(gamepad2.b && currenttime - lasttime > 1){
+        if(gamepad2.b && currenttime - lasttime > 0.5){
             button = "gamepad2.b";
             lasttime = currenttime;
             susanController.adjustLevel(1);
@@ -211,14 +217,19 @@ public class DriverWrap {
         //output
         if (gamepad1.left_bumper) {
             button = "gamepad1.left_bumper";
-            door.setPosition(1);
+            if(alliance == "red"){
+                door.setPosition(1);
+            }
+            if(alliance == "blue"){
+                door.setPosition(0);
+            }
 
             releaseFreight = true;
             intake.setPower(0.1);
             releaseFreightStartTime = currenttime;
         }
         else{
-            door.setPosition(0);
+            door.setPosition(0.5);
 //                setArm(0);
         }
 
