@@ -52,7 +52,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
  * is explained below.
  */
 @TeleOp(name = "Concept: TensorFlow Object Detection Webcam", group = "Concept")
-public class webcamTest extends LinearOpMode {
+public class WebcamTest extends LinearOpMode {
 
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects

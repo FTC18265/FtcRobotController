@@ -12,8 +12,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name = "encoderTest")
-public class encoderTest extends LinearOpMode {
+@TeleOp(name = "EncoderTest")
+public class EncoderTest extends LinearOpMode {
 
     private DcMotor topright;
     private DcMotor topleft;
@@ -101,18 +101,9 @@ public class encoderTest extends LinearOpMode {
 //            telemetry.update();
 //        }
 while(opModeIsActive()) {
-    //center 0.2
-    //left 0.5
-    //right 0
-    if(gamepad1.x){
-        position = position + 0.1;
-    }
-    if(gamepad1.b){
-        position = position - 0.1;
-    }
-
-    door.setPosition(position);
-    telemetry.addData("servo", door.getPosition());
+    telemetry.addData("arm", arm.getCurrentPosition());
+//    telemetry.addData("red", colorsensor.red());
+//    telemetry.addData("blue", colorsensor.blue());
     telemetry.update();
 }
 
@@ -165,35 +156,6 @@ while(opModeIsActive()) {
 //
 //            telemetry.update();
 
-//        }
-
-
-//
-//            telemetry.update();
-///*
-//            if(gamepad1.x){
-//                while(distancesensor.getDistance(DistanceUnit.CM) > 27){
-//                    topleft.setPower(-0.25);
-//                    topright.setPower(0.25);
-//                    bottomright.setPower(-0.25);
-//                    bottomleft.setPower(0.25);
-//                }
-//                topleft.setPower(0.3);
-//                topright.setPower(0.25);
-//                bottomright.setPower(-0.25);
-//                bottomleft.setPower(-0.3);
-//                sleep(100);
-//
-//                topleft.setPower(0);
-//                topright.setPower(0.25);
-//                bottomright.setPower(-0.25);
-//                bottomleft.setPower(0);
-//
-//                carousel.setPower(-0.5);
-//            }
-//
-// */
-//
 //        }
 
     }

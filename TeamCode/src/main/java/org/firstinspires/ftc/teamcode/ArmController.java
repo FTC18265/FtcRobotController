@@ -72,8 +72,11 @@ public class ArmController {
     }
 
     public void autoLevel(int level){
-        if (level == 1){
+        if (level == 0){
             arm.setTargetPosition(0);
+        }
+        if (level == 1){
+            arm.setTargetPosition(-450);
         }
         if (level == 2){
             arm.setTargetPosition(-750);

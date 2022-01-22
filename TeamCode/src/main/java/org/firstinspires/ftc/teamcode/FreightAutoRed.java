@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,9 +17,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-
-@Autonomous (group = "blue", name = "Blue Auto")
-public class freightAutoBlue extends LinearOpMode {
+@Autonomous (group = "red", name = "Red Auto")
+public class FreightAutoRed extends LinearOpMode {
     private DcMotor topright;
     private DcMotor topleft;
     private DcMotor bottomright;
@@ -40,6 +40,8 @@ public class freightAutoBlue extends LinearOpMode {
     private int degree = 1;
     private int currenttime = 0;
     private int detectionStartTime = 0;
+    //change based on height of color sensor
+    private int color = 2000;
 
     //var
     public static final double NEW_P = 1.5;
@@ -86,6 +88,8 @@ public class freightAutoBlue extends LinearOpMode {
         PIDFCoefficients pidModified = arm.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         PIDFCoefficients turningPidModified = susan.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        int position = 0;
+
         door.setPosition(0.5);
         carousel.setPower(0);
         arm.setPower(0.5);
@@ -116,54 +120,53 @@ public class freightAutoBlue extends LinearOpMode {
         gyroController.stopAllMotors();
 
         //output freight
-        door.setPosition(0);
+        door.setPosition(1);
         sleep(750);
         intake.setPower(0.1);
         sleep(500);
         intake.setPower(0);
 
-        susanController.autoLevel(-1);
+        susanController.autoLevel(1);
         sleep(1000);
         door.setPosition(0.5);
 //        sleep(500);
 
         //move to carousel
-        gyroController.gyroTurn(0.5, 90);
-        gyroController.gyroDrive(0.5, -30, 90);
+        gyroController.gyroTurn(0.5, -90);
+        gyroController.gyroDrive(0.5, -37, -90);
 
-
+        
         while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 50){
             telemetry.addData("distance sensor", distancesensor.getDistance(DistanceUnit.CM));
             gyroController.backward(0.1);
         }
         gyroController.stopAllMotors();
-        gyroController.gyroTurn(0.5, 45);
+        gyroController.gyroTurn(0.5, -45);
         gyroController.backward(0.3);
         sleep(1000);
         gyroController.backward(0.1);
         sleep(1000);
 
         //turn carousel
-        topleft.setPower(-0.1);
-        topright.setPower(-0.1);
-        bottomright.setPower(-0.1);
-        bottomleft.setPower(-0.1);
+        topleft.setPower(0);
+        topright.setPower(-0.25);
+        bottomright.setPower(-0.25);
+        bottomleft.setPower(0);
 
-        carousel.setPower(-0.5);
+        carousel.setPower(0.5);
         sleep(2500);
         carousel.setPower(0);
 
         //park in storage unit
-        gyroController.gyroTurn(0.3, -7);
+        gyroController.gyroTurn(0.3, 7);
         gyroController.forward(0.25);
         //line detection
         telemetry.addLine("start telemetry");
         telemetry.update();
-        while(opModeIsActive() && colorsensor.blue() < 2000 ){
-            telemetry.addData("colorsensor", colorsensor.blue());
+        while(opModeIsActive() && colorsensor.red() < color){
+            telemetry.addData("colorsensor", colorsensor.red());
             telemetry.update();
         }
-
         gyroController.stopAllMotors();
 
         armController.autoLevel(1);
@@ -183,4 +186,5 @@ public class freightAutoBlue extends LinearOpMode {
 
         telemetry.update();
     }
+
 }

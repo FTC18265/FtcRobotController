@@ -28,8 +28,9 @@ import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
 import java.util.List;
 import java.util.Locale;
 
+@Disabled
 @Autonomous (name = "ultimategoalauto")
-public class autonomousPeriod extends LinearOpMode {
+public class AutonomousPeriod extends LinearOpMode {
 
     private Servo arm;
     private Servo claw;

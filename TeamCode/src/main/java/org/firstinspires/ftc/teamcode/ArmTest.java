@@ -6,15 +6,19 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
 @TeleOp(name = "armTest")
-public class armTest extends LinearOpMode {
+public class ArmTest extends LinearOpMode {
     private DcMotorEx arm;
     private DcMotorEx susan;
     private DcMotor intake;
     private Servo door;
+    private DistanceSensor extradistancesensor;
 
     public static final double NEW_P = 1.5;
     public static final double NEW_I = 0.5;
@@ -32,6 +36,7 @@ public class armTest extends LinearOpMode {
         susan = hardwareMap.get(DcMotorEx.class, "susan");
         intake = hardwareMap.get(DcMotor.class, "intake");
         door = hardwareMap.get(Servo.class, "door");
+        extradistancesensor = hardwareMap.get(DistanceSensor.class, "extradistancesensor");
 
         ArmController armController = new ArmController(arm);
         armController.init();
@@ -45,29 +50,30 @@ public class armTest extends LinearOpMode {
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
-        armController.autoLevel(3);
+
+        armController.autoLevel(1);
         while(arm.isBusy()){
             telemetry.addData("arm", armController.getCurrentPosition());
             telemetry.update();
             intake.setPower(-0.1);
         }
+        intake.setPower(-0.45);
+        while( extradistancesensor.getDistance(DistanceUnit.CM) < 12.5){
+            telemetry.addLine("object detected");
+            telemetry.update();
+        }
+        sleep(500);
+        telemetry.addLine("object not detected");
+        telemetry.update();
+
         intake.setPower(0);
-        sleep(1000);
-        susanController.autoLevel(0);
-        sleep(2500);
-
-
-        door.setPosition(1);
-        sleep(1500);
-            intake.setPower(0.1);
-
-        sleep(2000);
-        intake.setPower(0);
-
-        susanController.autoLevel(-1);
-        door.setPosition(0);
-
-        sleep(10000);
+        sleep(5000);
+//        intake.setPower(0);
+//        if(extradistancesensor.getDistance(DistanceUnit.CM) < 12.5){
+//            telemetry.addLine("object detected");
+//        }else{
+//            telemetry.addLine("no object");
+//        }
     }
 
 }

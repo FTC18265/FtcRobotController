@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @TeleOp
-public class gyroTest extends LinearOpMode {
+public class GyroTest extends LinearOpMode {
     BNO055IMU imu;
     private DcMotor topright;
     private DcMotor bottomright;

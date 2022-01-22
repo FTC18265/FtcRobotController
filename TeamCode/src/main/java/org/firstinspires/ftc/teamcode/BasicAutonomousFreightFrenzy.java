@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -32,6 +33,7 @@ import java.util.List;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+@Disabled
 @Autonomous(name = "Basic Auto")
 public class BasicAutonomousFreightFrenzy extends LinearOpMode {
     private DcMotor topright;
@@ -172,7 +174,7 @@ public class BasicAutonomousFreightFrenzy extends LinearOpMode {
         //line detection
         telemetry.addLine("start telemetry");
         telemetry.update();
-        while(colorsensor.red() < 2000 && colorsensor.red() > 800){
+        while(colorsensor.red() < 2000 && colorsensor.red() > 2000){
             telemetry.addData("colorsensor", colorsensor.red());
             telemetry.update();
         }
