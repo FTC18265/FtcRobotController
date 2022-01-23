@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 public class DriverWrap {
 
     private DcMotor topright;
@@ -154,16 +156,16 @@ public class DriverWrap {
             button = "gamepad2.y";
             armController.adjustLevel(1);
 
-            //secure freight
-            secureFreight = true;
-            secureFreightStartTime = currenttime;
-            intake.setPower(-0.1);
+//            //secure freight
+//            secureFreight = true;
+//            secureFreightStartTime = currenttime;
+//            intake.setPower(-0.1);
         }
-
-        if(secureFreight == true && currenttime - secureFreightStartTime > 0.5){
-            intake.setPower(0);
-            secureFreight = false;
-        }
+//
+//        if(secureFreight == true && currenttime - secureFreightStartTime > 0.5){
+//            intake.setPower(0);
+//            secureFreight = false;
+//        }
 
 
         if (gamepad2.dpad_down && currenttime - lasttime > 0.1) {
@@ -206,10 +208,9 @@ public class DriverWrap {
             button = "gamepad1.right_bumper";
             intake.setPower(0.5);
         }
-        else if (secureFreight == false && releaseFreight == false){
-            intake.setPower(0);
+        if(!intake.isBusy()){
+            intake.setPower(-0.1);
         }
-
         if(gamepad1.a){
             intake.setPower(-0.5);
         }
@@ -223,20 +224,21 @@ public class DriverWrap {
             if(alliance == "blue"){
                 door.setPosition(0);
             }
-
-            releaseFreight = true;
+//
+//            releaseFreight = true;
             intake.setPower(0.1);
-            releaseFreightStartTime = currenttime;
+//            releaseFreightStartTime = currenttime;
         }
         else{
             door.setPosition(0.5);
+            intake.setPower(-0.1);
 //                setArm(0);
         }
-
-        if(releaseFreight == true && currenttime - releaseFreightStartTime > 0.5){
-            intake.setPower(0);
-            releaseFreight = false;
-        }
+//
+//        if(releaseFreight == true && currenttime - releaseFreightStartTime > 0.5){
+//            intake.setPower(0);
+//            releaseFreight = false;
+//        }
 
         //susan.setTargetPosition(keepPosition);
 
