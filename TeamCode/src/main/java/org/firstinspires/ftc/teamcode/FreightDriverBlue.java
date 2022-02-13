@@ -51,6 +51,8 @@ public class FreightDriverBlue extends LinearOpMode {
         while(opModeIsActive()){
             currenttime = getRuntime();
             driverWrap.run(gamepad1, gamepad2, currenttime);
+            telemetry.addData("arm", driverWrap.getArmPosition());
+            telemetry.update();
         }
     }
 

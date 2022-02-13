@@ -44,28 +44,31 @@ public class ArmController {
             level = 2;
         }
 
-        setArm(level);
+        setArm(level, false);
     }
 
-    public void setArm (int level){
-        if (level == 1){
+    public void setArm (int level, boolean mode){
+        if (level == 0){
+            arm.setPower(0.5);
+            arm.setTargetPosition(0);
+        }
+        else if (level == 1){
             arm.setPower(0.5);
             arm.setTargetPosition(-900);
         }
-        else if (level == 2){
-            arm.setPower(0.5);
-            arm.setTargetPosition(-1500);
+
+        if(mode == false){
+            if (level == 2){
+                arm.setPower(0.5);
+                arm.setTargetPosition(-1500);
+            }
         }
-
-        else if (level == 0){
-            arm.setPower(0.5);
-            arm.setTargetPosition(0);
-
+        else if(mode == true){
+            if (level == 2){
+                arm.setPower(0.5);
+                arm.setTargetPosition(-1650);
+            }
         }
-    }
-
-    public int getCurrentPosition(){
-        return arm.getCurrentPosition();
     }
 
     public void microAjust(int offset){
@@ -93,5 +96,7 @@ public class ArmController {
     public int getLevel(){
         return level;
     }
-
+    public int getCurrentPosition(){
+        return arm.getCurrentPosition();
+    }
 }

@@ -113,7 +113,6 @@ public class DriverWrap {
         }
         shipping(armController.getLevel());
 
-
         //drive train
         bottomright.setPower
                 (0.7 * (gamepad1.left_stick_x + (gamepad1.right_stick_x - gamepad1.right_stick_y)) * slowValue);
@@ -127,39 +126,23 @@ public class DriverWrap {
         //carousel
         if (gamepad1.b){
             button = "gamepad1.b";
-            carousel.setPower(0.5);
+            carousel.setPower(0.575);
         }
         if (gamepad1.x) {
             button = "gamepad1.x";
-            carousel.setPower(-0.5);
+            carousel.setPower(-0.575);
         }
         if (gamepad1.y) {
             button = "gamepad1.y";
             carousel.setPower(0);
         }
 
-/*
-            //distance sensor test
-            if(extradistancesensor.getDistance(DistanceUnit.CM) < 12.5){
-                telemetry.addLine("object detected");
-            }else{
-                telemetry.addLine("no object");
-            }
-
-            if(gamepad1.right_bumper && extradistancesensor.getDistance(DistanceUnit.CM) < 12.5){
-                 pullBack();
-
-                 level = 1;
-                 setArm(level);
-
-                 intake.setPower(0);
-            }
-
- */
         if(gamepad2.a && currenttime - lasttime > 0.5){
             button = "gamepad2.a";
             lasttime = currenttime;
             armController.adjustLevel(-1);
+
+            armController.setArm(armController.getLevel(), shippingMode);
         }
         if(gamepad2.y && currenttime - lasttime > 0.5){
             lasttime = currenttime;
@@ -169,6 +152,7 @@ public class DriverWrap {
 //            secureFreight = true;
 //            secureFreightStartTime = currenttime;
 //            intake.setPower(0.1);
+            armController.setArm(armController.getLevel(), shippingMode);
         }
 
 //        if(secureFreight == true && currenttime - secureFreightStartTime > 0.5){
@@ -249,8 +233,24 @@ public class DriverWrap {
             releaseFreight = false;
         }
 
-        //susan.setTargetPosition(keepPosition);
+        /*
+            //distance sensor test
+            if(extradistancesensor.getDistance(DistanceUnit.CM) < 12.5){
+                telemetry.addLine("object detected");
+            }else{
+                telemetry.addLine("no object");
+            }
 
+            if(gamepad1.right_bumper && extradistancesensor.getDistance(DistanceUnit.CM) < 12.5){
+                 pullBack();
+
+                 level = 1;
+                 setArm(level);
+
+                 intake.setPower(0);
+            }
+
+        */
     }
 
     //TSE arm
@@ -273,6 +273,10 @@ public class DriverWrap {
         }else{
             shippingArm.setPosition(1);
         }
+    }
+
+    public int getArmPosition(){
+        return armController.getCurrentPosition();
     }
 
 }
