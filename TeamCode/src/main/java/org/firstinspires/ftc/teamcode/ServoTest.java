@@ -8,39 +8,46 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Disabled
 @TeleOp(name = "servoTest")
 public class ServoTest extends LinearOpMode {
 
-    private Servo pusher;
-
+    private Servo shippingArm;
+    private double currenttime;
+    private double lasttime;
+    private double position = 1;
 
     @Override
     public void runOpMode() {
+        shippingArm = hardwareMap.get(Servo.class, "shippingArm");
+        shippingArm.setPosition(1);
 
-
-        pusher = hardwareMap.get(Servo.class, "pusher");
-        pusher.setPosition(1);
-
-
+        //1 -starting position
 
         waitForStart();
 
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-
-                if (gamepad1.y) {
-                    pusher.setPosition(0);
-                }else{
-                    pusher.setPosition(1);
-
-                }
-
-
+        while(opModeIsActive()){
+            currenttime = getRuntime();
+            if(gamepad1.a && currenttime - lasttime > 0.5){
+                lasttime = currenttime;
+                position = position - 0.05;
+            }
+            if(gamepad1.y && currenttime - lasttime > 0.5){
+                lasttime = currenttime;
+                position = position + 0.05;
             }
 
+            if(position > 1){
+                position = 1;
+            }
+            if(position < 0){
+                position = 0;
+            }
 
+            shippingArm.setPosition(position);
+            telemetry.addData("position", position);
+            telemetry.update();
         }
+
 
     }
 

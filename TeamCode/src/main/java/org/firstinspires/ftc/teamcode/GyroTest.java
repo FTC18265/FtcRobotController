@@ -70,8 +70,7 @@ public class GyroTest extends LinearOpMode {
 
         waitForStart();
 
-        gyroDrive(0.3, -10, 0);
-
+        gyroTurn(0.3, 35);
     }
 
     public void gyroTurn (  double speed, double angle) {

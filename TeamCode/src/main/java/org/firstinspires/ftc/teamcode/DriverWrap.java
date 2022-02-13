@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
 public class DriverWrap {
 
     private DcMotor topright;
@@ -22,6 +20,7 @@ public class DriverWrap {
     private DcMotorEx susan;
     private DcMotor intake;
     private Servo door;
+    private Servo shippingArm;
     private DcMotor carousel;
     private Rev2mDistanceSensor extradistancesensor;
     private Rev2mDistanceSensor distancesensor;
@@ -40,6 +39,7 @@ public class DriverWrap {
     private double releaseFreightStartTime = 0;
     private double slowValue = 1;
     private String alliance;
+    private boolean shippingMode = true;
 
     private String button;
     //var
@@ -69,6 +69,7 @@ public class DriverWrap {
         carousel = hardwareMap.get(DcMotor.class, "carousel");
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
         door = hardwareMap.get(Servo.class, "door");
+        shippingArm = hardwareMap.get(Servo.class, "shippingArm");
         extradistancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "extradistancesensor");
         distancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "distancesensor");
 
@@ -83,7 +84,8 @@ public class DriverWrap {
 
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        door.setPosition(0);
+        door.setPosition(0.5);
+        shippingArm.setPosition(1);
         carousel.setPower(0);
 
         carousel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -97,12 +99,20 @@ public class DriverWrap {
 
         arm.setPower(0.5);
         susan.setPower(0.5);
-
     }
 
     public void run(Gamepad gamepad1, Gamepad gamepad2, double currenttime){
         //slow mode
         slowValue = 1 - gamepad1.left_trigger * 0.65;
+
+        //TFE scoring
+        if(gamepad2.right_trigger != 0){
+            shippingMode = true;
+        }else{
+            shippingMode = false;
+        }
+        shipping(armController.getLevel());
+
 
         //drive train
         bottomright.setPower
@@ -155,13 +165,12 @@ public class DriverWrap {
             lasttime = currenttime;
             button = "gamepad2.y";
             armController.adjustLevel(1);
-
-//            //secure freight
+            //secure freight
 //            secureFreight = true;
 //            secureFreightStartTime = currenttime;
-//            intake.setPower(-0.1);
+//            intake.setPower(0.1);
         }
-//
+
 //        if(secureFreight == true && currenttime - secureFreightStartTime > 0.5){
 //            intake.setPower(0);
 //            secureFreight = false;
@@ -208,9 +217,10 @@ public class DriverWrap {
             button = "gamepad1.right_bumper";
             intake.setPower(0.5);
         }
-        if(!intake.isBusy()){
-            intake.setPower(-0.1);
+        else if (secureFreight == false && releaseFreight == false){
+            intake.setPower(0);
         }
+
         if(gamepad1.a){
             intake.setPower(-0.5);
         }
@@ -224,24 +234,45 @@ public class DriverWrap {
             if(alliance == "blue"){
                 door.setPosition(0);
             }
-//
-//            releaseFreight = true;
+
+            releaseFreight = true;
             intake.setPower(0.1);
-//            releaseFreightStartTime = currenttime;
+            releaseFreightStartTime = currenttime;
         }
         else{
             door.setPosition(0.5);
-            intake.setPower(-0.1);
 //                setArm(0);
         }
-//
-//        if(releaseFreight == true && currenttime - releaseFreightStartTime > 0.5){
-//            intake.setPower(0);
-//            releaseFreight = false;
-//        }
+
+        if(releaseFreight == true && currenttime - releaseFreightStartTime > 0.5){
+            intake.setPower(0);
+            releaseFreight = false;
+        }
 
         //susan.setTargetPosition(keepPosition);
 
+    }
+
+    //TSE arm
+    //orgi position - 1
+    //level 1 0.5
+    //level 2 0.25
+    //level 3 0
+    public void shipping(int level){
+        if(shippingMode == true){
+            if(level == 0 ){
+                shippingArm.setPosition(0.55);
+            }
+            if(level == 1 && arm.getCurrentPosition() < -600){
+//                arm.setTargetPosition(-775);
+                shippingArm.setPosition(0.25);
+            }
+            if(level == 2 && arm.getCurrentPosition() < -1200){
+                shippingArm.setPosition(0);
+            }
+        }else{
+            shippingArm.setPosition(1);
+        }
     }
 
 }

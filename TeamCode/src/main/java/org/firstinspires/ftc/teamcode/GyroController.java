@@ -49,6 +49,8 @@ public class GyroController extends MecanumController{
     }
 
     public void gyroTurn (  double speed, double angle) {
+        //left positive
+        //right negative
         // keep looping while we are still active, and not on heading.
         setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

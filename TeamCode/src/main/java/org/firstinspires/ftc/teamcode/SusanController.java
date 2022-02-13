@@ -115,8 +115,8 @@ public class SusanController {
 
     public void microAjust(int offset){
         position = susan.getCurrentPosition();
-        position = position + offset;
         if(alliance == "red"){
+            position = position + offset;
             if (position > 0){
                 position = 0;
             }
@@ -125,6 +125,7 @@ public class SusanController {
             }
         }
         if(alliance == "blue"){
+            position = position - offset;
             if (position < 0){
                 position = 0;
             }
