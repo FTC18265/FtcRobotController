@@ -12,13 +12,21 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
+import android.util.Log;
 
 
 @Autonomous (name = "Detection Auto Blue")
 public class DetectionAutoBlue extends LinearOpMode {
+    private static final String TAG = "Hebe";
+
     private DcMotor topright;
     private DcMotor topleft;
     private DcMotor bottomright;
@@ -28,7 +36,6 @@ public class DetectionAutoBlue extends LinearOpMode {
     private DcMotor intake;
     private Servo door;
     private DcMotor carousel;
-    private Rev2mDistanceSensor extradistancesensor;
     private Rev2mDistanceSensor distancesensor;
     private AnalogInput potentiometer;
     private VuforiaLocalizer vuforia;
@@ -39,11 +46,23 @@ public class DetectionAutoBlue extends LinearOpMode {
     private ArmController armController;
     private SusanController susanController;
 
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    private static final String[] LABELS = {
+            "Ball",
+            "Cube",
+            "Duck",
+            "Marker"
+    };
+
+    private static final String VUFORIA_KEY =
+            " ASxWKxX/////AAABmSF4eat8sUkxvdtWRwyP9DY+VoUtavSfblX3C9SsIUO3jHJ+WdvoYKEmByzo86qe/Mg4M0Xk0XIUtrYmNyErHwILvJJxOveLX2A2UAE3jO4yeYNszMt3GKQQEbv/QkiTHQLvN/uqrXBlBowX1nDOf7HeOCSIgjyZHmX5AuPIZw4TLMZ6xs+u8gup23vhSJjPROnD9Cr6+mJpwxIhpcLDtUtNL0IQdVDTPMxEoipVDIsnLuf3vCCcV/jIK5I6a2R8sPpDaGU0v4p0r+yDVAGH6TWt5pwRuV5a5GLyhjkwih7bNyIUfWCo4bNKvPXzV4wSK6DeNxtxgHquj2xLSkyG2o+4HGMdHXEsuekdjVJtYYDu ";
+
     private int level = 0;
     private int degree = 1;
     private int currenttime = 0;
     private int detectionStartTime = 0;
-    private int detectionResult = 2;
+    private int detectionResult = 1;
+    List<Recognition> updatedRecognitions;
 
     //change based on height of color sensor
     private int color = 2000;
@@ -71,7 +90,6 @@ public class DetectionAutoBlue extends LinearOpMode {
         carousel = hardwareMap.get(DcMotor.class, "carousel");
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
         door = hardwareMap.get(Servo.class, "door");
-        extradistancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "extradistancesensor");
         distancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "distancesensor");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         colorsensor = hardwareMap.get(ColorSensor.class, "colorsensor");
@@ -99,10 +117,116 @@ public class DetectionAutoBlue extends LinearOpMode {
         susan.setPower(0.5);
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        initVuforia();
+        initTfod();
+        if (tfod != null) {
+            tfod.activate();
+            tfod.setZoom(1, 16/9);
+        }
 
-        update();
+        //left 100
+        //middle 350
+        //right 600
+        while(!opModeIsActive()){
+            if (tfod != null) {
+                updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    telemetry.addData("position", detectionResult);
+                    int i = 0;
+
+                    for (Recognition recognition : updatedRecognitions) {
+                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                recognition.getLeft(), recognition.getTop());
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                recognition.getRight(), recognition.getBottom());
+
+//                        if ((recognition.getRight() > 500 && (recognition.getLabel() == "Duck" ||
+//                                recognition.getLabel() == "Cube"))){
+//                            detectionResult = 2;
+//                        } else
+//                        if ((recognition.getRight() > 200 && (recognition.getLabel() == "Duck" ||
+//                                recognition.getLabel() == "Cube") && recognition.getRight() < 500)){
+//                            detectionResult = 1;
+//                        } else{
+//                            detectionResult = 3;
+//                        }
+
+//                        if ((recognition.getRight() > 500 && (recognition.getLabel() == "Duck" ||
+//                                recognition.getLabel() == "Cube"))){
+//                            detectionResult = 3;
+//                        } else
+//                        if ((recognition.getRight() > 200 && (recognition.getLabel() == "Duck" ||
+//                                recognition.getLabel() == "Cube") && recognition.getRight() < 500)){
+//                            detectionResult = 2;
+//                        }else
+//                        if ((recognition.getRight() < 200 && (recognition.getLabel() == "Duck" ||
+//                                recognition.getLabel() == "Cube"))){
+//                            detectionResult = 1;
+//                        }
+                        boolean middle = false;
+                        boolean left = false;
+                        for(int x = 0; x < updatedRecognitions.size(); x++){
+
+                            if(updatedRecognitions.get(x).getLabel() == "Duck" || updatedRecognitions.get(x).getLabel() == "Cube"){
+                                Log.i(TAG, "object detected");
+
+                                if ((updatedRecognitions.get(x).getRight() > 400 )){
+                                    detectionResult = 2;
+                                    middle = false;
+                                    Log.i(TAG, "detect middle" );
+                                } else if (updatedRecognitions.get(x).getRight() < 400){
+                                    Log.i(TAG, "detect left" );
+                                    left = false;
+                                    detectionResult = 1;
+                                }
+                            } else if (updatedRecognitions.get(x).getLabel() == "Marker"){
+                                if ((updatedRecognitions.get(x).getRight() > 400 )){
+                                    middle = true;
+                                } else if (updatedRecognitions.get(x).getRight() < 400){
+                                    left = true;
+                                }
+                            }
+                        }
+                        if(middle == true && left == true){
+                            detectionResult = 3;
+                        }
+                        telemetry.addData("detected position", detectionResult);
+                        telemetry.update();
+                        i++;
+                    }
+
+                }
+            }
+        }
 /////////////////////////////////////////////////////////////////////
         waitForStart();
+        Log.i(TAG, "start");
+//        if(updatedRecognitions != null){
+//            Log.i(TAG, "size" + updatedRecognitions.size());
+//            for(int i = 0; i < updatedRecognitions.size(); i++){
+//                Log.i(TAG, updatedRecognitions.get(i).getLabel());
+//                if(updatedRecognitions.get(i).getLabel() == "Duck" || updatedRecognitions.get(i).getLabel() == "Cube"){
+//                    Log.i(TAG, "object detected");
+//
+//                    if ((updatedRecognitions.get(i).getRight() > 400 )){
+//                        detectionResult = 2;
+//                        Log.i(TAG, "detect middle" );
+//                    } else if (updatedRecognitions.get(i).getRight() < 400){
+//                        Log.i(TAG, "detect left" );
+//                        detectionResult = 1;
+//                    }
+//                }
+//            }
+//        }
+
+
+        telemetry.addData("position", detectionResult);
+        telemetry.update();
+        sleep(10000);
+
         intake.setPower(0.1);
 
         armController.autoLevel(detectionResult);
@@ -110,11 +234,12 @@ public class DetectionAutoBlue extends LinearOpMode {
         sleep(3000);
 
         gyroController.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) < 20){
             gyroController.setPower(0.5);
         }
         gyroController.setPower(0);
-        gyroController.gyroTurn(0.3, 35);
+        gyroController.gyroTurn(0.3, 37);
 
         //arm position
         if(detectionResult == 1){
@@ -128,7 +253,8 @@ public class DetectionAutoBlue extends LinearOpMode {
 
         //move to carousel
         susanController.autoLevel(-1);
-        gyroController.gyroTurn(0.3, 50);
+        armController.autoLevel(3);
+        gyroController.gyroTurn(0.3, 60);
 
         //turn carousel
         while(distancesensor.getDistance(DistanceUnit.CM) > 30 && opModeIsActive()){
@@ -137,7 +263,7 @@ public class DetectionAutoBlue extends LinearOpMode {
         gyroController.setPower(-0.1);
 
         carousel.setPower(-0.5);
-        sleep(2500);
+        sleep(3000);
         carousel.setPower(0);
 
         //park in storage unit
@@ -171,7 +297,7 @@ public class DetectionAutoBlue extends LinearOpMode {
 
     private void level1(){
         //move to hub
-        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) < 55){
+        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) < 58){
             gyroController.setPower(0.3);
         }
         gyroController.setPower(0);
@@ -180,6 +306,7 @@ public class DetectionAutoBlue extends LinearOpMode {
         intake.setPower(-0.3);
         sleep(2500);
     }
+
     private void level2(){
         while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) < 60){
             gyroController.setPower(0.3);
@@ -193,7 +320,9 @@ public class DetectionAutoBlue extends LinearOpMode {
     }
     private void level3(){
         //forward
-        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) < 75){
+        gyroController.gyroTurn(0.3, 40);
+
+        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) < 80){
             gyroController.setPower(0.3);
         }
         gyroController.setPower(0);
@@ -202,5 +331,29 @@ public class DetectionAutoBlue extends LinearOpMode {
         sleep(500);
         intake.setPower(0.1);
         door.setPosition(0);
+        sleep(1000);
+    }
+
+    private void initVuforia() {
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+    }
+
+    /**
+     * Initialize the TensorFlow Object Detection engine.
+     */
+    private void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.5f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
 }

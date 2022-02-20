@@ -22,7 +22,6 @@ public class DriverWrap {
     private Servo door;
     private Servo shippingArm;
     private DcMotor carousel;
-    private Rev2mDistanceSensor extradistancesensor;
     private Rev2mDistanceSensor distancesensor;
     private MecanumController mecanumController;
     private ArmController armController;
@@ -70,7 +69,6 @@ public class DriverWrap {
         potentiometer = hardwareMap.get(AnalogInput.class, "potentiometer");
         door = hardwareMap.get(Servo.class, "door");
         shippingArm = hardwareMap.get(Servo.class, "shippingArm");
-        extradistancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "extradistancesensor");
         distancesensor = hardwareMap.get(Rev2mDistanceSensor.class, "distancesensor");
 
         mecanumController = new MecanumController(topleft, topright, bottomleft, bottomright);
@@ -199,7 +197,7 @@ public class DriverWrap {
         //intake
         if (gamepad1.right_bumper) {
             button = "gamepad1.right_bumper";
-            intake.setPower(0.5);
+            intake.setPower(0.6);
         }
         else if (secureFreight == false && releaseFreight == false){
             intake.setPower(0);
@@ -220,7 +218,7 @@ public class DriverWrap {
             }
 
             releaseFreight = true;
-            intake.setPower(0.1);
+            intake.setPower(-0.1);
             releaseFreightStartTime = currenttime;
         }
         else{
@@ -230,7 +228,6 @@ public class DriverWrap {
 
         if(releaseFreight == true && currenttime - releaseFreightStartTime > 0.5){
             intake.setPower(0);
-            releaseFreight = false;
         }
 
         /*
