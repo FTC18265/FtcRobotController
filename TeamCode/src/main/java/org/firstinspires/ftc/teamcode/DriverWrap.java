@@ -124,11 +124,11 @@ public class DriverWrap {
         //carousel
         if (gamepad1.b){
             button = "gamepad1.b";
-            carousel.setPower(0.575);
+            carousel.setPower(0.5);
         }
         if (gamepad1.x) {
             button = "gamepad1.x";
-            carousel.setPower(-0.575);
+            carousel.setPower(-0.5);
         }
         if (gamepad1.y) {
             button = "gamepad1.y";
@@ -217,9 +217,9 @@ public class DriverWrap {
                 door.setPosition(0);
             }
 
-            releaseFreight = true;
-            intake.setPower(-0.1);
-            releaseFreightStartTime = currenttime;
+                releaseFreight = true;
+                releaseFreightStartTime = currenttime;
+
         }
         else{
             door.setPosition(0.5);
