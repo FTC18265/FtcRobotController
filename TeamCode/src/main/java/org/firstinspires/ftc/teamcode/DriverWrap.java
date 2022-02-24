@@ -217,9 +217,11 @@ public class DriverWrap {
                 door.setPosition(0);
             }
 
+            if(armController.getLevel() != 1){
                 releaseFreight = true;
+                intake.setPower(-0.1);
                 releaseFreightStartTime = currenttime;
-
+            }
         }
         else{
             door.setPosition(0.5);
