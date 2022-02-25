@@ -200,7 +200,7 @@ public class DetectionAutoBlue extends LinearOpMode {
         }
 
         //move to carousel
-        susanController.autoLevel(-1);
+        susanController.autoLevel(1);
         door.setPosition(0.5);
         armController.autoLevel(3);
         if(detectionResult == 3){

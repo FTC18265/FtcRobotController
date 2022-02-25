@@ -201,23 +201,34 @@ public class DetectionRedAuto extends LinearOpMode {
 
         //move to carousel
         susanController.autoLevel(-1);
+        door.setPosition(0.5);
         armController.autoLevel(3);
-        gyroController.gyroTurn(0.3, 60);
-        moveByDistance(30, -0.3);
+        if(detectionResult == 3){
+            gyroController.gyroTurn(0.3, -55);
+        }
+        if(detectionResult == 2){
+            gyroController.gyroTurn(0.3, -60);
+        }
+        if(detectionResult == 1){
+            gyroController.gyroTurn(0.3, -75);
+        }
+        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 30){
+            gyroController.setPower(-0.3);
+        }
 
         //turn carousel
         gyroController.setPower(-0.1);
 
-        carousel.setPower(-0.5);
+        carousel.setPower(0.5);
         sleep(3000);
         carousel.setPower(0);
 
         //park in storage unit
-        gyroController.gyroTurn(0.3, -7);
+        gyroController.gyroTurn(0.3, 10);
         gyroController.forward(0.25);
         //line detection
         telemetry.update();
-        while(opModeIsActive() && colorsensor.blue() < color ){
+        while(opModeIsActive() && colorsensor.red() < color ){
             telemetry.addData("colorsensor", colorsensor.blue());
             telemetry.update();
         }
@@ -242,24 +253,27 @@ public class DetectionRedAuto extends LinearOpMode {
     }
 
     private void level1(){
+        moveByDistance(5, 0.5);
+        gyroController.gyroTurn(0.3, -30);
         armController.autoLevel(1);
-        moveByDistance(10, 0.5);
-        gyroController.gyroTurn(0.3, 30);
 
         //move to hub
-        moveByDistance(23, 0.3);
+        moveByDistance(45, 0.3);
 
         //drop freight
         intake.setPower(-0.3);
         sleep(2500);
 
         //move to carousel
-
+        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 45){
+            gyroController.setPower(-0.3);
+        }
+        gyroController.setPower(0);
     }
 
     private void level2(){
         moveByDistance(20, 0.5);
-        gyroController.gyroTurn(0.3, 37);
+        gyroController.gyroTurn(0.3, -37);
 
         moveByDistance(60, 0.3);
 
@@ -271,7 +285,7 @@ public class DetectionRedAuto extends LinearOpMode {
     private void level3(){
         armController.autoLevel(3);
         moveByDistance(20, 0.5);
-        gyroController.gyroTurn(0.3, 40);
+        gyroController.gyroTurn(0.3, -35);
 
         moveByDistance(80, 0.3);
 
@@ -279,7 +293,7 @@ public class DetectionRedAuto extends LinearOpMode {
         sleep(500);
         intake.setPower(0.1);
         door.setPosition(0);
-        sleep(1000);
+        sleep(1500);
 
     }
 
