@@ -23,8 +23,8 @@ import java.util.List;
 import android.util.Log;
 
 
-@Autonomous (name = "Detection Auto Blue")
-public class DetectionAutoBlue extends LinearOpMode {
+@Autonomous (name = "Detection Auto Red")
+public class DetectionAutoRed extends LinearOpMode {
     private static final String TAG = "Hebe";
 
     private DcMotor topright;
@@ -200,17 +200,17 @@ public class DetectionAutoBlue extends LinearOpMode {
         }
 
         //move to carousel
-        susanController.autoLevel(-1);
+        susanController.autoLevel(1);
         door.setPosition(0.5);
         armController.autoLevel(3);
         if(detectionResult == 3){
-            gyroController.gyroTurn(0.3, 55);
+            gyroController.gyroTurn(0.3, -55);
         }
         if(detectionResult == 2){
-            gyroController.gyroTurn(0.3, 60);
+            gyroController.gyroTurn(0.3, -60);
         }
         if(detectionResult == 1){
-            gyroController.gyroTurn(0.3, 75);
+            gyroController.gyroTurn(0.3, -65);
         }
         while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 30){
             gyroController.setPower(-0.3);
@@ -219,16 +219,16 @@ public class DetectionAutoBlue extends LinearOpMode {
         //turn carousel
         gyroController.setPower(-0.1);
 
-        carousel.setPower(-0.5);
+        carousel.setPower(0.5);
         sleep(3000);
         carousel.setPower(0);
 
         //park in storage unit
-        gyroController.gyroTurn(0.3, -10);
+        gyroController.gyroTurn(0.3, 10);
         gyroController.forward(0.25);
         //line detection
         telemetry.update();
-        while(opModeIsActive() && colorsensor.blue() < color ){
+        while(opModeIsActive() && colorsensor.red() < color ){
             telemetry.addData("colorsensor", colorsensor.blue());
             telemetry.update();
         }
@@ -254,7 +254,7 @@ public class DetectionAutoBlue extends LinearOpMode {
 
     private void level1(){
         moveByDistance(5, 0.5);
-        gyroController.gyroTurn(0.3, 30);
+        gyroController.gyroTurn(0.3, -35);
         armController.autoLevel(1);
 
         //move to hub
@@ -265,17 +265,17 @@ public class DetectionAutoBlue extends LinearOpMode {
         sleep(2500);
 
         //move to carousel
-        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 45){
-            gyroController.setPower(-0.3);
-        }
+//        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 45){
+//            gyroController.setPower(-0.3);
+//        }
         gyroController.setPower(0);
     }
 
     private void level2(){
-        moveByDistance(20, 0.5);
-        gyroController.gyroTurn(0.3, 37);
+        moveByDistance(10, 0.5);
+        gyroController.gyroTurn(0.3, -40);
 
-        moveByDistance(60, 0.3);
+        moveByDistance(55, 0.3);
 
         //drop freight
         intake.setPower(-0.3);
@@ -285,7 +285,7 @@ public class DetectionAutoBlue extends LinearOpMode {
     private void level3(){
         armController.autoLevel(3);
         moveByDistance(20, 0.5);
-        gyroController.gyroTurn(0.3, 35);
+        gyroController.gyroTurn(0.3, -35);
 
         moveByDistance(80, 0.3);
 
