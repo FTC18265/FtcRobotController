@@ -61,7 +61,7 @@ public class DetectionAutoRed extends LinearOpMode {
     private int degree = 1;
     private int currenttime = 0;
     private int detectionStartTime = 0;
-    private int detectionResult = 1;
+    private int detectionResult = 3;
     List<Recognition> updatedRecognitions;
 
     //change based on height of color sensor
@@ -204,13 +204,13 @@ public class DetectionAutoRed extends LinearOpMode {
         door.setPosition(0.5);
         armController.autoLevel(3);
         if(detectionResult == 3){
-            gyroController.gyroTurn(0.3, -55);
+            gyroController.gyroTurn(0.3, -25);
         }
         if(detectionResult == 2){
-            gyroController.gyroTurn(0.3, -60);
+            gyroController.gyroTurn(0.3, -57);
         }
         if(detectionResult == 1){
-            gyroController.gyroTurn(0.3, -65);
+            gyroController.gyroTurn(0.3, -70);
         }
         while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 30){
             gyroController.setPower(-0.3);
@@ -224,7 +224,7 @@ public class DetectionAutoRed extends LinearOpMode {
         carousel.setPower(0);
 
         //park in storage unit
-        gyroController.gyroTurn(0.3, 10);
+        gyroController.gyroTurn(0.3, 15);
         gyroController.forward(0.25);
         //line detection
         telemetry.update();
@@ -232,6 +232,7 @@ public class DetectionAutoRed extends LinearOpMode {
             telemetry.addData("colorsensor", colorsensor.blue());
             telemetry.update();
         }
+
 
         gyroController.stopAllMotors();
         armController.autoLevel(0);
@@ -254,7 +255,7 @@ public class DetectionAutoRed extends LinearOpMode {
 
     private void level1(){
         moveByDistance(5, 0.5);
-        gyroController.gyroTurn(0.3, -35);
+        gyroController.gyroTurn(0.3, -33);
         armController.autoLevel(1);
 
         //move to hub
@@ -265,17 +266,17 @@ public class DetectionAutoRed extends LinearOpMode {
         sleep(2500);
 
         //move to carousel
-//        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 45){
-//            gyroController.setPower(-0.3);
-//        }
+        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 45){
+            gyroController.setPower(-0.3);
+        }
         gyroController.setPower(0);
     }
 
     private void level2(){
-        moveByDistance(10, 0.5);
-        gyroController.gyroTurn(0.3, -40);
+        moveByDistance(15, 0.5);
+        gyroController.gyroTurn(0.3, -43);
 
-        moveByDistance(55, 0.3);
+        moveByDistance(60, 0.3);
 
         //drop freight
         intake.setPower(-0.3);
@@ -284,10 +285,11 @@ public class DetectionAutoRed extends LinearOpMode {
     }
     private void level3(){
         armController.autoLevel(3);
-        moveByDistance(20, 0.5);
-        gyroController.gyroTurn(0.3, -35);
+        moveByDistance(50, 0.5);
+        moveByDistance(83, 0.3);
+        gyroController.gyroTurn(0.2, -95);
 
-        moveByDistance(80, 0.3);
+        moveByDistance(80, 0.15);
 
         intake.setPower(-0.1);
         sleep(500);
@@ -295,6 +297,10 @@ public class DetectionAutoRed extends LinearOpMode {
         door.setPosition(0);
         sleep(1500);
 
+        while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 60){
+            gyroController.setPower(-0.3);
+        }
+        gyroController.setPower(0);
     }
 
     private void initVuforia() {
