@@ -204,7 +204,7 @@ public class DetectionAutoRed extends LinearOpMode {
         door.setPosition(0.5);
         armController.autoLevel(3);
         if(detectionResult == 3){
-            gyroController.gyroTurn(0.3, -25);
+            gyroController.gyroTurn(0.3, -27);
         }
         if(detectionResult == 2){
             gyroController.gyroTurn(0.3, -57);

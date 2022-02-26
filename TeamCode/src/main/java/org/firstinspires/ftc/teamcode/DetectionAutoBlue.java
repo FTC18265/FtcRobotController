@@ -210,7 +210,7 @@ public class DetectionAutoBlue extends LinearOpMode {
             gyroController.gyroTurn(0.3, 60);
         }
         if(detectionResult == 1){
-            gyroController.gyroTurn(0.3, 75);
+            gyroController.gyroTurn(0.3, 70);
         }
         while(opModeIsActive() && distancesensor.getDistance(DistanceUnit.CM) > 30){
             gyroController.setPower(-0.3);
